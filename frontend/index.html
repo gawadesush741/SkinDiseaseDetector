@@ -82,6 +82,15 @@
                             <span>Analyze image</span><span class="button-arrow" aria-hidden="true">&#8594;</span>
                         </button>
                     </div>
+
+                    <div class="photo-tips">
+                        <p class="photo-tips-title">💡 Tips for Accurate Analysis:</p>
+                        <ul>
+                            <li>Take a focused close-up centered on the skin lesion</li>
+                            <li>Ensure good, even lighting (avoid flash glare)</li>
+                            <li>Keep surrounding skin free from shadows or hair where possible</li>
+                        </ul>
+                    </div>
                     <p id="loading" role="status" aria-live="polite"><span class="spinner"></span>Analyzing image...</p>
                     <p id="uploadError" class="upload-error" role="alert" hidden></p>
                 </section>
@@ -99,6 +108,19 @@
                         <div class="result-status"><span class="status-dot"></span><span id="resultStatus">AWAITING IMAGE</span></div>
                         <div class="prediction" id="prediction">Your result will appear here</div>
                         <div class="confidence" id="confidence">Confidence: -</div>
+
+                        <div id="inconclusiveAlert" class="inconclusive-banner" hidden>
+                            <span class="inconclusive-icon" aria-hidden="true">⚠️</span>
+                            <div>
+                                <strong>Low Confidence Alert</strong>
+                                <p id="inconclusiveText">The AI model detected low certainty (<45%). The image may be blurry, poorly lit, or not a recognized skin lesion.</p>
+                            </div>
+                        </div>
+
+                        <div id="differentialContainer" class="differential-container" hidden>
+                            <h4 class="differential-title">Differential Probabilities (Top-3):</h4>
+                            <div id="differentialList" class="differential-list"></div>
+                        </div>
                     </div>
 
                     <div class="result-details">
@@ -124,6 +146,12 @@
                             <h3>When to seek medical attention</h3>
                             <p id="medicalAttention">Consult a qualified healthcare professional about any concerning, changing, or persistent skin lesion.</p>
                         </div>
+                    </div>
+
+                    <div class="report-actions" id="reportActions" hidden>
+                        <button type="button" id="printReportButton" class="print-button">
+                            <span>📄 Print / Save Summary (PDF)</span>
+                        </button>
                     </div>
                 </section>
             </div>
@@ -320,6 +348,13 @@
         closeCameraButton.addEventListener("click", stopCamera);
         window.addEventListener("pagehide", stopCamera);
 
+        const printReportButton = document.getElementById("printReportButton");
+        if (printReportButton) {
+            printReportButton.addEventListener("click", function () {
+                window.print();
+            });
+        }
+
         uploadZone.addEventListener("dragover", function (event) {
             event.preventDefault();
             uploadZone.classList.add("is-dragging");
@@ -397,11 +432,12 @@
 
 
                     if (!response.ok) {
-
-                        throw new Error(
-                            "Server returned an error."
-                        );
-
+                        let errorDetail = "Server returned an error.";
+                        try {
+                            const errBody = await response.json();
+                            if (errBody && errBody.detail) errorDetail = errBody.detail;
+                        } catch (e) {}
+                        throw new Error(errorDetail);
                     }
 
 
@@ -427,6 +463,45 @@
                         "Confidence: "
                         + data.confidence
                         + "%";
+
+                    // Low confidence / Inconclusive handling
+                    const inconclusiveAlert = document.getElementById("inconclusiveAlert");
+                    const inconclusiveText = document.getElementById("inconclusiveText");
+                    if (data.is_inconclusive) {
+                        inconclusiveText.textContent = data.inconclusive_notice || "The model identified this lesion with low confidence (<45%). Please consult a dermatologist.";
+                        inconclusiveAlert.hidden = false;
+                        resultStatus.textContent = "INCONCLUSIVE / LOW CONFIDENCE";
+                    } else {
+                        inconclusiveAlert.hidden = true;
+                    }
+
+                    // Differential Diagnoses (Top-3)
+                    const differentialContainer = document.getElementById("differentialContainer");
+                    const differentialList = document.getElementById("differentialList");
+                    differentialList.innerHTML = "";
+
+                    if (data.top_predictions && data.top_predictions.length > 0) {
+                        data.top_predictions.forEach(function (item) {
+                            const row = document.createElement("div");
+                            row.className = "diff-row";
+                            row.innerHTML =
+                                '<div class="diff-header">' +
+                                    '<span class="diff-name">' + item.disease + '</span>' +
+                                    '<span class="diff-pct">' + item.confidence + '%</span>' +
+                                '</div>' +
+                                '<div class="diff-bar-track">' +
+                                    '<div class="diff-bar-fill" style="width: ' + Math.min(100, Math.max(4, item.confidence)) + '%"></div>' +
+                                '</div>';
+                            differentialList.appendChild(row);
+                        });
+                        differentialContainer.hidden = false;
+                    } else {
+                        differentialContainer.hidden = true;
+                    }
+
+                    // Show Print / Save Action
+                    const reportActions = document.getElementById("reportActions");
+                    if (reportActions) reportActions.hidden = false;
 
 
                     // Description
@@ -509,7 +584,7 @@
 
                     console.error(error);
                     resultStatus.textContent = "ANALYSIS UNAVAILABLE";
-                    uploadError.textContent = "Unable to analyze this image. Check that the screening service is running and try again.";
+                    uploadError.textContent = error.message || "Unable to analyze this image. Check that the screening service is running and try again.";
                     uploadError.hidden = false;
 
                 }

@@ -10,7 +10,7 @@ from models.skin_dataset import SkinDataset
 from models.label_map import LABEL_MAP
 from models.skin_model import create_model
 from models.class_weights import calculate_class_weights
-from preprocessing.transforms import image_transforms
+from preprocessing.transforms import image_transforms, train_transforms
 
 
 # -----------------------------
@@ -43,7 +43,7 @@ train_dataset = SkinDataset(
     csv_file="data/raw/train.csv",
     image_folder=IMAGE_FOLDER,
     label_map=LABEL_MAP,
-    transform=image_transforms
+    transform=train_transforms
 )
 
 validation_dataset = SkinDataset(
@@ -116,8 +116,10 @@ optimizer = torch.optim.Adam(
 
 
 # -----------------------------
-# Training
+# Training with Best Model Checkpointing
 # -----------------------------
+
+best_validation_accuracy = 0.0
 
 for epoch in range(EPOCHS):
 
@@ -201,14 +203,20 @@ for epoch in range(EPOCHS):
     )
 
 
-# -----------------------------
-# Save model
-# -----------------------------
+    # Checkpoint best model
+    if validation_accuracy > best_validation_accuracy:
+        best_validation_accuracy = validation_accuracy
+        torch.save(
+            model.state_dict(),
+            "skin_disease_model.pth"
+        )
+        print(f"--> Best model saved! (Validation Accuracy: {round(best_validation_accuracy, 2)}%)")
 
-torch.save(
-    model.state_dict(),
-    "skin_disease_model.pth"
-)
+
+# -----------------------------
+# Training Summary
+# -----------------------------
 
 print("\nTraining completed!")
-print("Model saved as: skin_disease_model.pth")
+print(f"Final Best Validation Accuracy: {round(best_validation_accuracy, 2)}%")
+print("Best weights preserved in: skin_disease_model.pth")

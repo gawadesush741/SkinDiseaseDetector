@@ -1,7 +1,26 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from PIL import Image
+from starlette.concurrency import run_in_threadpool
+from PIL import Image, UnidentifiedImageError
+import numpy as np
+
+# Decompression bomb prevention & upload constraints
+Image.MAX_IMAGE_PIXELS = 25_000_000
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB
+CONFIDENCE_THRESHOLD = 45.0  # Alert if top prediction is below 45%
+
+
+def validate_image_quality(pil_image: Image.Image) -> tuple[bool, str]:
+    """
+    Heuristic check to reject blank, solid-color, or completely dark/flat images
+    before passing them to the AI model.
+    """
+    thumb = np.array(pil_image.resize((64, 64)))
+    std_dev = float(np.std(thumb))
+    if std_dev < 15.0:
+        return False, "The uploaded image appears blank, solid-color, or severely under-exposed. Please upload a clear, focused photo of the skin lesion."
+    return True, ""
 
 import torch
 import io
@@ -202,49 +221,70 @@ DEFAULT_DISEASE_INFO = {
 
 
 # ==========================================
-# PREDICT API
+# PREDICT API & INFERENCE HELPERS
 # ==========================================
+
+def run_model_inference(pil_image: Image.Image):
+    """
+    Synchronous inference worker function.
+    Executed in a background thread to prevent blocking FastAPI's async event loop.
+    """
+    image_tensor = image_transforms(pil_image).unsqueeze(0).to(device)
+
+    with torch.no_grad():
+        output = model(image_tensor)
+        probabilities = torch.softmax(output, dim=1)
+
+        top_k = min(3, len(reverse_label_map))
+        top_confidences, top_classes = torch.topk(probabilities, top_k, dim=1)
+
+    top_predictions = [
+        {
+            "disease": reverse_label_map[top_classes[0][i].item()],
+            "confidence": round(top_confidences[0][i].item() * 100, 2)
+        }
+        for i in range(top_k)
+    ]
+
+    return top_predictions
+
 
 @app.post("/predict")
 async def predict(
     file: UploadFile = File(...)
 ):
-
-    # Read uploaded image
+    # Validate file size
     image_bytes = await file.read()
-
-    image = Image.open(
-        io.BytesIO(image_bytes)
-    ).convert("RGB")
-
-    # Preprocess image
-    image_tensor = image_transforms(image)
-
-    image_tensor = image_tensor.unsqueeze(0)
-
-    # AI prediction
-    with torch.no_grad():
-
-        output = model(image_tensor)
-
-        probabilities = torch.softmax(
-            output,
-            dim=1
+    if len(image_bytes) > MAX_UPLOAD_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded file exceeds the maximum allowed limit of 10 MB."
         )
 
-        confidence, predicted_class = torch.max(
-            probabilities,
-            1
+    # Validate image decoding
+    try:
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    except (UnidentifiedImageError, Exception):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid image format. Please upload a clear JPG, PNG, or WEBP image."
         )
 
-    # Get disease name
-    predicted_label = reverse_label_map[
-        predicted_class.item()
-    ]
+    # Validate image quality (reject completely blank, uniform, or blacked-out files)
+    is_valid_quality, quality_err = validate_image_quality(image)
+    if not is_valid_quality:
+        raise HTTPException(
+            status_code=400,
+            detail=quality_err
+        )
 
-    confidence_percentage = (
-        confidence.item() * 100
-    )
+    # Run non-blocking inference in threadpool
+    top_predictions = await run_in_threadpool(run_model_inference, image)
+
+    top_result = top_predictions[0]
+    predicted_label = top_result["disease"]
+    confidence_percentage = top_result["confidence"]
+    is_inconclusive = confidence_percentage < CONFIDENCE_THRESHOLD
 
     # Get information from MongoDB or fallback knowledge base
     disease_info = None
@@ -266,12 +306,20 @@ async def predict(
     if not disease_info:
         disease_info = DEFAULT_DISEASE_INFO.get(predicted_label, {})
 
+    inconclusive_notice = None
+    if is_inconclusive:
+        inconclusive_notice = (
+            f"The AI model identified {predicted_label} with low confidence ({confidence_percentage}%). "
+            "The image may be blurry, have harsh lighting, or not show distinctive skin lesion patterns. "
+            "Please consult a dermatologist for a professional clinical examination."
+        )
+
     return {
         "prediction": predicted_label,
-        "confidence": round(
-            confidence_percentage,
-            2
-        ),
+        "confidence": confidence_percentage,
+        "is_inconclusive": is_inconclusive,
+        "inconclusive_notice": inconclusive_notice,
+        "top_predictions": top_predictions,
         "description": disease_info.get(
             "description",
             ""
