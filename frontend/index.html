@@ -141,11 +141,11 @@
     <script>
 
         function getApiUrl() {
-            // Local development with Live Server (port not 8000) or file preview
-            if (window.location.protocol === "file:" || (["localhost", "127.0.0.1"].includes(window.location.hostname) && window.location.port !== "8000")) {
+            // Standalone frontend development (Live Server port 5500/5501 or direct file:// preview)
+            if (window.location.protocol === "file:" || ["5500", "5501", "3000", "5173"].includes(window.location.port)) {
                 return "http://127.0.0.1:8000/predict";
             }
-            // Same-origin backend (Render deployment or FastAPI server on port 8000)
+            // Same-origin backend (FastAPI serves frontend locally or in cloud production)
             return "/predict";
         }
 

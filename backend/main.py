@@ -16,7 +16,8 @@ from pymongo import MongoClient
 # FIND PROJECT FILES
 # ==========================================
 
-sys.path.append("src")
+BASE_DIR = Path(__file__).resolve().parents[1]
+sys.path.append(str(BASE_DIR / "src"))
 
 from models.skin_model import create_model
 from models.label_map import LABEL_MAP
@@ -291,14 +292,21 @@ async def predict(
 
 
 # ==========================================
-# SERVE FRONTEND
+# HEALTH CHECK & SERVE FRONTEND
 # ==========================================
 
-app.mount(
-    "/",
-    StaticFiles(
-        directory="frontend",
-        html=True
-    ),
-    name="frontend"
-)
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "service": "Skin Disease AI"}
+
+frontend_dir = BASE_DIR / "frontend"
+
+if frontend_dir.exists():
+    app.mount(
+        "/",
+        StaticFiles(
+            directory=str(frontend_dir),
+            html=True
+        ),
+        name="frontend"
+    )
