@@ -21,7 +21,7 @@ device = torch.device("cpu")
 # 2. Load trained AI model
 # -----------------------------
 
-model = create_model(num_classes=len(LABEL_MAP))
+model = create_model(num_classes=len(LABEL_MAP), pretrained=False)
 
 model.load_state_dict(
     torch.load(

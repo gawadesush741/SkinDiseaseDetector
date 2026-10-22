@@ -17,6 +17,7 @@ __pycache__/
 # Datasets and trained weights
 data/
 *.pth
+!skin_disease_model.pth
 *.pt
 *.ckpt
 

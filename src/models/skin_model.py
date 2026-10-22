@@ -3,9 +3,10 @@ import torch.nn as nn
 from torchvision import models
 
 
-def create_model(num_classes=7):
+def create_model(num_classes=7, pretrained=True):
 
-    model = models.resnet18(weights="DEFAULT")
+    weights = "DEFAULT" if pretrained else None
+    model = models.resnet18(weights=weights)
 
     # Replace the final layer
     number_of_features = model.fc.in_features

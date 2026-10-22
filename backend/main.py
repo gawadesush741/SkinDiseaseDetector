@@ -6,6 +6,7 @@ from PIL import Image
 import torch
 import io
 import sys
+from pathlib import Path
 
 from pymongo import MongoClient
 
@@ -39,12 +40,15 @@ app = FastAPI(
 device = torch.device("cpu")
 
 model = create_model(
-    num_classes=len(LABEL_MAP)
+    num_classes=len(LABEL_MAP),
+    pretrained=False
 )
+
+model_path = Path(__file__).resolve().parents[1] / "skin_disease_model.pth"
 
 model.load_state_dict(
     torch.load(
-        "skin_disease_model.pth",
+        model_path,
         map_location=device
     )
 )
