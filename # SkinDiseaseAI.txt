@@ -1,0 +1,1088 @@
+# SkinDiseaseAI
+
+## AI-Based Skin Lesion Classification Prototype
+
+SkinDiseaseAI is a final-year project prototype that uses **Digital Image Processing (DIP), Computer Vision, Deep Learning, FastAPI, HTML/CSS/JavaScript, and MongoDB** to analyze skin-lesion images.
+
+The system:
+
+1. Accepts a skin-lesion image.
+2. Preprocesses the image.
+3. Uses a trained **ResNet18** deep-learning model.
+4. Predicts one of seven lesion categories.
+5. Gets additional information from MongoDB.
+6. Displays the prediction, model confidence, description, causes/associations, general care, and medical-attention guidance.
+
+> **Important:** This is an educational/research prototype and is **not a medical diagnostic system**. AI predictions can be incorrect. Concerning, changing, bleeding, painful, or persistent skin lesions should be evaluated by a qualified healthcare professional.
+
+---
+
+# 1. Technology Stack
+
+| Component                  | Technology         |
+| -------------------------- | ------------------ |
+| Programming Language       | Python             |
+| Deep Learning              | PyTorch            |
+| CNN Model                  | ResNet18           |
+| Image Processing           | OpenCV             |
+| Image Handling             | Pillow             |
+| Data Processing            | Pandas             |
+| Machine Learning Utilities | Scikit-learn       |
+| Backend                    | FastAPI            |
+| API Server                 | Uvicorn            |
+| Database                   | MongoDB            |
+| Database Driver            | PyMongo            |
+| Frontend                   | HTML5              |
+| Styling                    | CSS3               |
+| Frontend Logic             | JavaScript         |
+| Development Environment    | Visual Studio Code |
+| Operating System Used      | Windows 11         |
+
+---
+
+# 2. Python Version
+
+The project was developed using:
+
+```text
+Python 3.14.8
+```
+
+Check your Python version:
+
+```powershell
+python --version
+```
+
+You should see something similar to:
+
+```text
+Python 3.14.8
+```
+
+---
+
+# 3. Required Software
+
+Before installing the Python packages, install the following software.
+
+## 3.1 Python
+
+Install Python 3.14 or a compatible Python version.
+
+During Python installation on Windows, make sure:
+
+```text
+Add Python to PATH
+```
+
+is enabled.
+
+Verify:
+
+```powershell
+python --version
+```
+
+and:
+
+```powershell
+pip --version
+```
+
+---
+
+# 3.2 Visual Studio Code
+
+Visual Studio Code is recommended for opening and running the project.
+
+Open the extracted project folder:
+
+```text
+SkinDiseaseAI
+```
+
+in VS Code.
+
+---
+
+# 3.3 MongoDB Community Server
+
+Install:
+
+```text
+MongoDB Community Server
+```
+
+MongoDB is required because the application stores disease information in the database.
+
+The application expects MongoDB to be available at:
+
+```text
+mongodb://localhost:27017
+```
+
+After installation, make sure the MongoDB service is running.
+
+---
+
+# 3.4 MongoDB Compass
+
+MongoDB Compass is optional but recommended.
+
+It provides a graphical interface for viewing the database.
+
+The project uses:
+
+```text
+Database:
+skin_disease_ai
+
+Collection:
+diseases
+```
+
+---
+
+# 4. Project Structure
+
+After extracting the ZIP, the project should look approximately like this:
+
+```text
+SkinDiseaseAI
+│
+├── backend
+│   ├── __init__.py
+│   └── main.py
+│
+├── frontend
+│   ├── index.html
+│   └── style.css
+│
+├── data
+│   ├── raw
+│   │   ├── images
+│   │   ├── test_images
+│   │   ├── ham10000_metadata_2026-10-01.csv
+│   │   └── skin_dataset_clean.csv
+│   │
+│   └── processed
+│
+├── src
+│   ├── database
+│   ├── models
+│   ├── preprocessing
+│   └── utils
+│
+├── tests
+│
+├── skin_disease_model.pth
+│
+├── main.py
+│
+└── README.md
+```
+
+> The `.venv` folder should **not be shared** inside the ZIP. A new virtual environment should be created on the new computer.
+
+---
+
+# 5. Create a Python Virtual Environment
+
+Open PowerShell in the project folder.
+
+Example:
+
+```powershell
+cd D:\SkinDiseaseAI
+```
+
+Create the virtual environment:
+
+```powershell
+python -m venv .venv
+```
+
+Activate it:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+After activation, the terminal should show something similar to:
+
+```text
+(.venv) PS D:\SkinDiseaseAI>
+```
+
+---
+
+# 6. Upgrade pip
+
+Run:
+
+```powershell
+python -m pip install --upgrade pip
+```
+
+---
+
+# 7. Install Required Python Packages
+
+Install the main image-processing and numerical packages:
+
+```powershell
+pip install opencv-python numpy
+```
+
+Install database support:
+
+```powershell
+pip install pymongo
+```
+
+Install data-processing and machine-learning utilities:
+
+```powershell
+pip install pandas scikit-learn
+```
+
+Install image handling:
+
+```powershell
+pip install pillow
+```
+
+Install progress-bar utilities:
+
+```powershell
+pip install tqdm colorama
+```
+
+Install the web backend:
+
+```powershell
+pip install fastapi uvicorn python-multipart
+```
+
+---
+
+# 8. Install PyTorch
+
+The original project was trained using the **CPU version of PyTorch**.
+
+Install:
+
+```powershell
+pip install torch torchvision
+```
+
+If the PyTorch installation gives compatibility problems on a different computer, use the official PyTorch installation instructions for that computer's Python/CPU/GPU configuration.
+
+The original development environment used approximately:
+
+```text
+torch       2.14.1+cpu
+torchvision 0.29.1+cpu
+```
+
+The project does not require an NVIDIA GPU.
+
+CPU training is supported, although training is considerably slower than GPU training.
+
+---
+
+# 9. Complete Package List
+
+The project uses the following Python packages:
+
+```text
+opencv-python
+numpy
+pymongo
+pandas
+scikit-learn
+pillow
+tqdm
+colorama
+fastapi
+uvicorn
+python-multipart
+torch
+torchvision
+```
+
+A convenient single installation command is:
+
+```powershell
+pip install opencv-python numpy pymongo pandas scikit-learn pillow tqdm colorama fastapi uvicorn python-multipart torch torchvision
+```
+
+---
+
+# 10. Verify the Python Environment
+
+Run:
+
+```powershell
+python -c "import cv2, numpy, pymongo, pandas, sklearn, PIL, torch, torchvision, fastapi, uvicorn; print('All packages imported successfully!')"
+```
+
+If successful, the environment is ready.
+
+You can also check PyTorch:
+
+```powershell
+python -c "import torch; print(torch.__version__); print('CUDA available:', torch.cuda.is_available())"
+```
+
+The original project was run on CPU, so:
+
+```text
+CUDA available: False
+```
+
+is acceptable.
+
+---
+
+# 11. MongoDB Setup
+
+Make sure MongoDB is running.
+
+The project connects using:
+
+```text
+mongodb://localhost:27017
+```
+
+The required database is:
+
+```text
+skin_disease_ai
+```
+
+The required collection is:
+
+```text
+diseases
+```
+
+---
+
+# 12. Insert Disease Information
+
+The project contains a database seed script:
+
+```text
+src/database/seed_diseases.py
+```
+
+Run:
+
+```powershell
+python src/database/seed_diseases.py
+```
+
+You should see:
+
+```text
+Disease information inserted successfully!
+Number of records: 7
+```
+
+The seven categories are:
+
+```text
+1. Basal cell carcinoma
+2. Dermatofibroma
+3. Melanoma, NOS
+4. Nevus
+5. Pigmented benign keratosis
+6. Solar or actinic keratosis
+7. Squamous cell carcinoma, NOS
+```
+
+---
+
+# 13. Dataset
+
+The project uses skin-lesion images from the **ISIC / HAM10000-related dataset collection**.
+
+The dataset contains dermatoscopic images and metadata.
+
+The clean dataset used for model training contains approximately:
+
+```text
+11,540 labeled images
+7 classes
+```
+
+The original dataset files should be placed under:
+
+```text
+data/raw/
+```
+
+The expected metadata file is:
+
+```text
+ham10000_metadata_2026-10-01.csv
+```
+
+The image files should be inside:
+
+```text
+data/raw/images/
+```
+
+---
+
+# 14. Dataset Preparation
+
+The project includes:
+
+```text
+src/utils/create_clean_dataset.py
+```
+
+This script removes records without a diagnosis label and creates:
+
+```text
+data/raw/skin_dataset_clean.csv
+```
+
+Run:
+
+```powershell
+python src/utils/create_clean_dataset.py
+```
+
+The output should show the original number of records, clean records, removed records, and the location of the clean dataset.
+
+---
+
+# 15. Image Preprocessing
+
+The project uses image preprocessing before feeding images to the neural network.
+
+The main preprocessing includes:
+
+```text
+Resize → 224 × 224
+Convert image to tensor
+Normalize using ImageNet mean/std
+```
+
+OpenCV is also used in the project's Digital Image Processing workflow.
+
+The preprocessing code is located under:
+
+```text
+src/preprocessing/
+```
+
+---
+
+# 16. Model
+
+The project uses:
+
+```text
+ResNet18
+```
+
+with seven output classes.
+
+The model is created using:
+
+```text
+torchvision.models
+```
+
+The trained model is stored as:
+
+```text
+skin_disease_model.pth
+```
+
+### Important
+
+If `skin_disease_model.pth` is included in the ZIP, you **do not need to train the model again** just to run the application.
+
+The FastAPI backend loads this file when the server starts.
+
+---
+
+# 17. If the Model File Is Missing
+
+If:
+
+```text
+skin_disease_model.pth
+```
+
+is not included in the ZIP, the model must be trained again.
+
+The training script is:
+
+```text
+src/models/train.py
+```
+
+Run:
+
+```powershell
+python src/models/train.py
+```
+
+Training on CPU can take a long time.
+
+The original baseline training used:
+
+```text
+Epochs: 5
+Batch size: 16
+Learning rate: 0.0001
+Optimizer: Adam
+Loss: CrossEntropyLoss with class weights
+Model: ResNet18
+Device: CPU
+```
+
+After successful training, the model file should be generated:
+
+```text
+skin_disease_model.pth
+```
+
+---
+
+# 18. Start the FastAPI Application
+
+Make sure the virtual environment is activated:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+From the project root:
+
+```text
+D:\SkinDiseaseAI
+```
+
+run:
+
+```powershell
+uvicorn backend.main:app --reload
+```
+
+You should see:
+
+```text
+Uvicorn running on http://127.0.0.1:8000
+```
+
+and:
+
+```text
+Application startup complete.
+```
+
+---
+
+# 19. Open the Website
+
+Open a browser and visit:
+
+```text
+http://127.0.0.1:8000/
+```
+
+This is the main Skin Disease AI website.
+
+The application provides:
+
+```text
+Image Upload
+      ↓
+AI Analysis
+      ↓
+Prediction
+      ↓
+Confidence
+      ↓
+Disease Information
+      ↓
+General Care
+      ↓
+Medical Attention Guidance
+```
+
+---
+
+# 20. FastAPI Documentation
+
+FastAPI automatically provides a developer testing interface.
+
+Open:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+This page is useful for testing the API directly.
+
+The main API endpoint is:
+
+```text
+POST /predict
+```
+
+The normal user-facing website should be opened using:
+
+```text
+http://127.0.0.1:8000/
+```
+
+not `/docs`.
+
+---
+
+# 21. Testing the API
+
+The `/predict` endpoint accepts an image.
+
+Example request:
+
+```text
+POST /predict
+```
+
+with:
+
+```text
+multipart/form-data
+file = image file
+```
+
+Example response:
+
+```json
+{
+    "prediction": "Nevus",
+    "confidence": 90.98,
+    "description": "A nevus, commonly called a mole, is a common skin growth.",
+    "causes": [
+        "Genetic factors",
+        "Normal development of pigment-producing cells",
+        "Sun exposure can influence the number and appearance of moles"
+    ],
+    "general_care": [
+        "Protect the skin from excessive sun exposure",
+        "Monitor moles for changes in size, shape, or color",
+        "Avoid picking or irritating a mole"
+    ],
+    "medical_attention": "A changing, itching, bleeding, or unusual mole should be examined by a dermatologist."
+}
+```
+
+---
+
+# 22. Important: Understanding Confidence
+
+The value:
+
+```text
+confidence: 90.98
+```
+
+means the model assigned approximately 90.98% probability to its predicted class among the seven classes.
+
+It does **not** mean:
+
+```text
+90.98% medical accuracy
+```
+
+and it does not mean that the user has a 90.98% chance of having that disease.
+
+The application should therefore present this as:
+
+```text
+Model Confidence
+```
+
+rather than:
+
+```text Medical Certainty
+```
+
+---
+
+# 23. Important Dataset Limitation
+
+The training dataset primarily contains **dermatoscopic skin-lesion images**.
+
+Therefore, this prototype should not be described as a system capable of detecting every type of skin disease from any ordinary mobile-phone photograph.
+
+For a final-year project, a suitable description is:
+
+> "An AI-based skin lesion classification prototype using dermatoscopic image data."
+
+Future versions could use additional datasets containing clinical/mobile-phone images.
+
+---
+
+# 24. Medical Safety
+
+This application is an educational/research prototype.
+
+It should not be used to:
+
+* Confirm a medical diagnosis
+* Replace a dermatologist
+* Decide whether medical treatment is required
+* Recommend prescription medication
+* Guarantee that a lesion is harmless
+
+Users should seek professional medical evaluation for concerning lesions, particularly lesions that are:
+
+* Changing
+* Growing
+* Bleeding
+* Painful
+* Persistent
+* Itchy or irritated
+* Unusual in appearance
+
+---
+
+# 25. Common Problems
+
+## Problem 1 — `python` is not recognized
+
+Install Python and make sure Python is added to PATH.
+
+Then restart VS Code.
+
+Check:
+
+```powershell
+python --version
+```
+
+---
+
+## Problem 2 — Virtual environment does not activate
+
+Run:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks script execution, open PowerShell with appropriate permissions or use the VS Code Command Prompt terminal.
+
+---
+
+## Problem 3 — MongoDB connection error
+
+Make sure MongoDB Community Server is running.
+
+The application expects:
+
+```text
+mongodb://localhost:27017
+```
+
+---
+
+## Problem 4 — `ModuleNotFoundError`
+
+Make sure the virtual environment is active:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Then reinstall the packages:
+
+```powershell
+pip install opencv-python numpy pymongo pandas scikit-learn pillow tqdm colorama fastapi uvicorn python-multipart torch torchvision
+```
+
+---
+
+## Problem 5 — Model file not found
+
+Make sure:
+
+```text
+skin_disease_model.pth
+```
+
+exists in the project root:
+
+```text
+SkinDiseaseAI/
+    skin_disease_model.pth
+```
+
+---
+
+## Problem 6 — Website does not open
+
+Start the server from the project root:
+
+```powershell
+uvicorn backend.main:app --reload
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+---
+
+## Problem 7 — Swagger page appears
+
+If you see the FastAPI documentation page, you probably opened:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+The actual website is:
+
+```text
+http://127.0.0.1:8000/
+```
+
+---
+
+# 26. Complete Setup — Quick Version
+
+For someone setting up the project from the ZIP:
+
+### Step 1
+
+Extract:
+
+```text
+SkinDiseaseAI.zip
+```
+
+### Step 2
+
+Open the extracted folder in VS Code.
+
+### Step 3
+
+Open PowerShell in the project folder.
+
+### Step 4
+
+Create virtual environment:
+
+```powershell
+python -m venv .venv
+```
+
+### Step 5
+
+Activate it:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+### Step 6
+
+Upgrade pip:
+
+```powershell
+python -m pip install --upgrade pip
+```
+
+### Step 7
+
+Install packages:
+
+```powershell
+pip install opencv-python numpy pymongo pandas scikit-learn pillow tqdm colorama fastapi uvicorn python-multipart torch torchvision
+```
+
+### Step 8
+
+Install/start MongoDB Community Server.
+
+### Step 9
+
+Seed MongoDB:
+
+```powershell
+python src/database/seed_diseases.py
+```
+
+### Step 10
+
+Make sure the trained model exists:
+
+```text
+skin_disease_model.pth
+```
+
+### Step 11
+
+Start FastAPI:
+
+```powershell
+uvicorn backend.main:app --reload
+```
+
+### Step 12
+
+Open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+### Step 13
+
+Upload an image.
+
+### Step 14
+
+Click:
+
+```text
+Analyze Image
+```
+
+---
+
+# 27. Project Architecture
+
+```text
+                    USER
+                      │
+                      ▼
+             ┌─────────────────┐
+             │  HTML / CSS /   │
+             │   JavaScript    │
+             └────────┬────────┘
+                      │
+                      │ Image Upload
+                      ▼
+             ┌─────────────────┐
+             │    FastAPI      │
+             │    Backend      │
+             └────────┬────────┘
+                      │
+              ┌───────┴────────┐
+              │                │
+              ▼                ▼
+       ┌─────────────┐   ┌─────────────┐
+       │   PyTorch   │   │   MongoDB   │
+       │  ResNet18   │   │   Disease   │
+       │    Model    │   │ Information │
+       └──────┬──────┘   └──────┬──────┘
+              │                 │
+              └────────┬────────┘
+                       ▼
+                ┌──────────────┐
+                │    Result    │
+                │ Prediction   │
+                │ Confidence   │
+                │ Description  │
+                │ Causes       │
+                │ General Care │
+                └──────────────┘
+```
+
+---
+
+# 28. Project Status
+
+Current prototype supports:
+
+* [x] Python environment
+* [x] OpenCV image processing
+* [x] Dataset preparation
+* [x] PyTorch model
+* [x] ResNet18 training
+* [x] Model prediction
+* [x] MongoDB database
+* [x] Disease information
+* [x] FastAPI backend
+* [x] REST API
+* [x] HTML frontend
+* [x] CSS styling
+* [x] JavaScript image upload
+* [x] Frontend-to-backend communication
+* [x] AI prediction displayed on website
+* [x] MongoDB information displayed on website
+
+---
+
+# 29. Future Improvements
+
+Possible future improvements include:
+
+* Better modern UI/UX
+* Image preview before analysis
+* Drag-and-drop image upload
+* Prediction history
+* User accounts
+* Better model evaluation
+* Confusion matrix
+* Precision, recall, F1-score
+* ROC/AUC analysis
+* Lesion-level train/validation/test splitting
+* Data augmentation
+* More training data
+* Additional skin-disease categories
+* Model comparison
+* Experimental lesion-area/visual-prominence analysis
+* Mobile-friendly interface
+* Deployment to a cloud server
+
+Any future "severity" feature should be treated carefully because the current training dataset does not contain reliable clinical severity labels.
+
+---
+
+# 30. Author / Academic Project
+
+**Project Name:** SkinDiseaseAI
+
+**Project Type:** Final-Year / Academic Project
+
+**Main Areas:**
+
+* Digital Image Processing
+* Computer Vision
+* Deep Learning
+* Artificial Intelligence
+* Web Development
+* Database Management
+
+**Backend:** FastAPI + Python
+
+**Frontend:** HTML + CSS + JavaScript
+
+**AI:** PyTorch + ResNet18
+
+**Database:** MongoDB
+
+---
+
+## Final Note
+
+This project is intended for educational and research purposes. It demonstrates how Digital Image Processing, Deep Learning, APIs, web development, and databases can be integrated into a single application.
+
+The prediction generated by the model should not be treated as a medical diagnosis.

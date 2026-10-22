@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dermalens | Skin Analysis</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=3">
+
+</head>
+
+
+<body>
+
+    <div class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="#main" aria-label="Dermalens home">
+                <span class="brand-mark" aria-hidden="true">D</span>
+                <span>dermalens</span>
+            </a>
+            <div class="topbar-note"><span class="status-dot"></span> Skin image screening</div>
+            <span class="prototype-tag">EDUCATIONAL PROTOTYPE</span>
+        </header>
+
+        <main class="container" id="main">
+            <section class="intro" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">IMAGE ASSESSMENT</p>
+                    <h1 id="page-title">A closer look at<br><em>your skin.</em></h1>
+                    <p class="intro-copy">Upload a clear image of a skin lesion to receive an AI-generated screening summary.</p>
+                </div>
+                <div class="intro-aside">
+                    <span class="aside-number">01 <span>/</span> 02</span>
+                    <span class="aside-label">Add an image<br>to begin screening</span>
+                    <span class="aside-line"></span>
+                </div>
+            </section>
+
+            <div class="workspace">
+                <section class="upload-panel" aria-labelledby="upload-title">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">STEP 01</p>
+                            <h2 id="upload-title">Add an image</h2>
+                        </div>
+                        <span class="panel-index">01</span>
+                    </div>
+
+                    <label class="upload-zone" for="imageInput">
+                        <img id="imagePreview" class="image-preview" alt="Selected skin lesion preview" hidden>
+                        <span class="upload-content" id="uploadContent">
+                            <span class="upload-icon" aria-hidden="true">+</span>
+                            <span class="upload-title" id="uploadTitle">Choose an image</span>
+                            <span class="upload-subtitle" id="uploadSubtitle">or drag and drop it here</span>
+                            <span class="file-types">JPG, PNG or WEBP · up to 10 MB</span>
+                        </span>
+                        <input class="file-input" type="file" id="imageInput" accept="image/*">
+                    </label>
+
+                    <div class="camera-launch-row">
+                        <button id="cameraButton" class="camera-button" type="button" aria-controls="cameraPanel">Use camera</button>
+                    </div>
+
+                    <div id="cameraPanel" class="camera-panel" hidden>
+                        <video id="cameraVideo" class="camera-video" autoplay playsinline muted aria-label="Live camera preview"></video>
+                        <div class="camera-controls">
+                            <button id="captureButton" type="button">Capture photo</button>
+                            <button id="closeCameraButton" class="camera-close-button" type="button">Close camera</button>
+                        </div>
+                    </div>
+
+                    <div class="upload-actions">
+                        <p class="privacy-note"><span aria-hidden="true">●</span> Image is used for this analysis only</p>
+                        <button id="analyzeButton" type="button" disabled>
+                            <span>Analyze image</span><span class="button-arrow" aria-hidden="true">&#8594;</span>
+                        </button>
+                    </div>
+                    <p id="loading" role="status" aria-live="polite"><span class="spinner"></span>Analyzing image...</p>
+                    <p id="uploadError" class="upload-error" role="alert" hidden></p>
+                </section>
+
+                <section class="result" aria-labelledby="result-title" aria-live="polite">
+                    <div class="panel-heading result-heading">
+                        <div>
+                            <p class="eyebrow">STEP 02</p>
+                            <h2 id="result-title">Screening summary</h2>
+                        </div>
+                        <span class="panel-index">02</span>
+                    </div>
+
+                    <div class="prediction-box" id="predictionBox">
+                        <div class="result-status"><span class="status-dot"></span><span id="resultStatus">AWAITING IMAGE</span></div>
+                        <div class="prediction" id="prediction">Your result will appear here</div>
+                        <div class="confidence" id="confidence">Confidence: -</div>
+                    </div>
+
+                    <div class="result-details">
+                        <section class="section">
+                            <h3>Description</h3>
+                            <p id="description">A screening summary will be available after image analysis.</p>
+                        </section>
+                        <div class="detail-columns">
+                            <section class="section">
+                                <h3>Associations</h3>
+                                <ul id="causes"><li>Not available yet</li></ul>
+                            </section>
+                            <section class="section">
+                                <h3>General care</h3>
+                                <ul id="generalCare"><li>Not available yet</li></ul>
+                            </section>
+                        </div>
+                    </div>
+
+                    <div class="warning">
+                        <span class="warning-icon" aria-hidden="true">!</span>
+                        <div>
+                            <h3>When to seek medical attention</h3>
+                            <p id="medicalAttention">Consult a qualified healthcare professional about any concerning, changing, or persistent skin lesion.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="page-footer">
+                <p><strong>For education, not diagnosis.</strong> AI predictions can be incorrect and should not replace professional medical advice.</p>
+                <span>DERMALENS <span aria-hidden="true">·</span> SCREENING TOOL</span>
+            </footer>
+        </main>
+    </div>
+
+
+    <!-- JavaScript -->
+
+    <script>
+
+        const imageInput =
+            document.getElementById(
+                "imageInput"
+            );
+
+        const analyzeButton =
+            document.getElementById(
+                "analyzeButton"
+            );
+
+        const loading =
+            document.getElementById(
+                "loading"
+            );
+
+        const imagePreview =
+            document.getElementById("imagePreview");
+
+        const uploadTitle =
+            document.getElementById("uploadTitle");
+
+        const uploadSubtitle =
+            document.getElementById("uploadSubtitle");
+
+        const uploadError =
+            document.getElementById("uploadError");
+
+        const resultStatus =
+            document.getElementById("resultStatus");
+
+        const uploadZone =
+            document.querySelector(".upload-zone");
+
+        const cameraButton =
+            document.getElementById("cameraButton");
+
+        const cameraPanel =
+            document.getElementById("cameraPanel");
+
+        const cameraVideo =
+            document.getElementById("cameraVideo");
+
+        const captureButton =
+            document.getElementById("captureButton");
+
+        const closeCameraButton =
+            document.getElementById("closeCameraButton");
+
+        let previewUrl = null;
+        let cameraStream = null;
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(function (track) {
+                    track.stop();
+                });
+                cameraStream = null;
+            }
+
+            cameraVideo.srcObject = null;
+            cameraPanel.hidden = true;
+            cameraButton.disabled = false;
+        }
+
+        imageInput.addEventListener("change", function () {
+            stopCamera();
+            const file = imageInput.files[0];
+            uploadError.hidden = true;
+
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+
+            if (!file) {
+                imagePreview.hidden = true;
+                imagePreview.removeAttribute("src");
+                uploadTitle.textContent = "Choose an image";
+                uploadSubtitle.textContent = "or drag and drop it here";
+                analyzeButton.disabled = true;
+                return;
+            }
+
+            if (!file.type.startsWith("image/") || file.size > 10 * 1024 * 1024) {
+                imageInput.value = "";
+                imagePreview.hidden = true;
+                imagePreview.removeAttribute("src");
+                uploadTitle.textContent = "Choose an image";
+                uploadSubtitle.textContent = "or drag and drop it here";
+                uploadError.textContent = file.size > 10 * 1024 * 1024
+                    ? "This image is larger than 10 MB. Choose a smaller file."
+                    : "Choose an image file to continue.";
+                uploadError.hidden = false;
+                analyzeButton.disabled = true;
+                return;
+            }
+
+            previewUrl = URL.createObjectURL(file);
+            imagePreview.src = previewUrl;
+            imagePreview.hidden = false;
+            uploadTitle.textContent = file.name;
+            uploadSubtitle.textContent = "Image ready for screening · choose another image";
+            analyzeButton.disabled = false;
+        });
+
+        cameraButton.addEventListener("click", async function () {
+            uploadError.hidden = true;
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                uploadError.textContent = "Camera access is unavailable in this browser. Use a secure connection or select an image file instead.";
+                uploadError.hidden = false;
+                return;
+            }
+
+            cameraButton.disabled = true;
+
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: "environment" } },
+                    audio: false
+                });
+                cameraVideo.srcObject = cameraStream;
+                cameraPanel.hidden = false;
+                await cameraVideo.play();
+            } catch (error) {
+                stopCamera();
+                uploadError.textContent = error.name === "NotAllowedError"
+                    ? "Camera permission was denied. Allow camera access in your browser settings or select an image file."
+                    : "Unable to open the camera. Check that it is connected and not being used by another app.";
+                uploadError.hidden = false;
+            }
+        });
+
+        captureButton.addEventListener("click", function () {
+            if (!cameraVideo.videoWidth || !cameraVideo.videoHeight) {
+                uploadError.textContent = "The camera is still starting. Try capturing again in a moment.";
+                uploadError.hidden = false;
+                return;
+            }
+
+            const scale = Math.min(1, 1600 / Math.max(cameraVideo.videoWidth, cameraVideo.videoHeight));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(cameraVideo.videoWidth * scale);
+            canvas.height = Math.round(cameraVideo.videoHeight * scale);
+            canvas.getContext("2d").drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+            captureButton.disabled = true;
+
+            canvas.toBlob(function (blob) {
+                captureButton.disabled = false;
+
+                if (!blob) {
+                    uploadError.textContent = "The camera image could not be captured. Please try again.";
+                    uploadError.hidden = false;
+                    return;
+                }
+
+                const file = new File([blob], "camera-capture.jpg", {
+                    type: "image/jpeg",
+                    lastModified: Date.now()
+                });
+                const transfer = new DataTransfer();
+                transfer.items.add(file);
+                imageInput.files = transfer.files;
+                stopCamera();
+                imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+            }, "image/jpeg", 0.9);
+        });
+
+        closeCameraButton.addEventListener("click", stopCamera);
+        window.addEventListener("pagehide", stopCamera);
+
+        uploadZone.addEventListener("dragover", function (event) {
+            event.preventDefault();
+            uploadZone.classList.add("is-dragging");
+        });
+
+        uploadZone.addEventListener("dragleave", function (event) {
+            if (!uploadZone.contains(event.relatedTarget)) {
+                uploadZone.classList.remove("is-dragging");
+            }
+        });
+
+        uploadZone.addEventListener("drop", function (event) {
+            event.preventDefault();
+            uploadZone.classList.remove("is-dragging");
+
+            if (event.dataTransfer.files.length) {
+                const transfer = new DataTransfer();
+                transfer.items.add(event.dataTransfer.files[0]);
+                imageInput.files = transfer.files;
+                imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+        });
+
+
+        analyzeButton.addEventListener(
+            "click",
+            async function () {
+
+                const file =
+                    imageInput.files[0];
+
+
+                if (!file) {
+                    uploadError.textContent = "Choose an image before starting the analysis.";
+                    uploadError.hidden = false;
+                    return;
+
+                }
+
+
+                // Show loading
+
+                loading.style.display =
+                    "block";
+
+                resultStatus.textContent = "ANALYSIS IN PROGRESS";
+
+                analyzeButton.disabled =
+                    true;
+
+
+                // Create form data
+
+                const formData =
+                    new FormData();
+
+                formData.append(
+                    "file",
+                    file
+                );
+
+
+                try {
+
+                    // Send image to FastAPI
+
+                    const response =
+                        await fetch(
+                            "http://127.0.0.1:8000/predict",
+                            {
+                                method: "POST",
+                                body: formData
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Server returned an error."
+                        );
+
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    // Prediction
+
+                    document.getElementById(
+                        "prediction"
+                    ).textContent =
+                        data.prediction;
+
+                    resultStatus.textContent = "SCREENING COMPLETE";
+
+
+                    // Confidence
+
+                    document.getElementById(
+                        "confidence"
+                    ).textContent =
+                        "Confidence: "
+                        + data.confidence
+                        + "%";
+
+
+                    // Description
+
+                    document.getElementById(
+                        "description"
+                    ).textContent =
+                        data.description;
+
+
+                    // Causes
+
+                    const causesList =
+                        document.getElementById(
+                            "causes"
+                        );
+
+                    causesList.innerHTML = "";
+
+
+                    data.causes.forEach(
+                        function (cause) {
+
+                            const li =
+                                document.createElement(
+                                    "li"
+                                );
+
+                            li.textContent =
+                                cause;
+
+                            causesList.appendChild(
+                                li
+                            );
+
+                        }
+                    );
+
+
+                    // General Care
+
+                    const careList =
+                        document.getElementById(
+                            "generalCare"
+                        );
+
+                    careList.innerHTML = "";
+
+
+                    data.general_care.forEach(
+                        function (care) {
+
+                            const li =
+                                document.createElement(
+                                    "li"
+                                );
+
+                            li.textContent =
+                                care;
+
+                            careList.appendChild(
+                                li
+                            );
+
+                        }
+                    );
+
+
+                    // Medical Attention
+
+                    document.getElementById(
+                        "medicalAttention"
+                    ).textContent =
+                        data.medical_attention;
+
+                }
+
+
+                catch (error) {
+
+                    console.error(error);
+                    resultStatus.textContent = "ANALYSIS UNAVAILABLE";
+                    uploadError.textContent = "Unable to analyze this image. Check that the screening service is running and try again.";
+                    uploadError.hidden = false;
+
+                }
+
+
+                finally {
+
+                    loading.style.display =
+                        "none";
+
+                    analyzeButton.disabled =
+                        false;
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
