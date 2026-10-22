@@ -140,6 +140,15 @@
 
     <script>
 
+        function getApiUrl() {
+            // Local development with Live Server (port not 8000) or file preview
+            if (window.location.protocol === "file:" || (["localhost", "127.0.0.1"].includes(window.location.hostname) && window.location.port !== "8000")) {
+                return "http://127.0.0.1:8000/predict";
+            }
+            // Same-origin backend (Render deployment or FastAPI server on port 8000)
+            return "/predict";
+        }
+
         const imageInput =
             document.getElementById(
                 "imageInput"
@@ -379,7 +388,7 @@
 
                     const response =
                         await fetch(
-                            "http://127.0.0.1:8000/predict",
+                            getApiUrl(),
                             {
                                 method: "POST",
                                 body: formData
