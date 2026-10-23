@@ -384,23 +384,23 @@ async def get_diseases_catalog():
 
 frontend_dir = BASE_DIR / "frontend"
 
-@app.get("/scan")
+@app.api_route("/scan", methods=["GET", "HEAD"])
 async def get_scan_page():
     return FileResponse(frontend_dir / "scan.html")
 
-@app.get("/diseases")
+@app.api_route("/diseases", methods=["GET", "HEAD"])
 async def get_diseases_page():
     return FileResponse(frontend_dir / "diseases.html")
 
-@app.get("/history")
+@app.api_route("/history", methods=["GET", "HEAD"])
 async def get_history_page():
     return FileResponse(frontend_dir / "history.html")
 
-@app.get("/clinics")
+@app.api_route("/clinics", methods=["GET", "HEAD"])
 async def get_clinics_page():
     return FileResponse(frontend_dir / "clinics.html")
 
-@app.get("/about")
+@app.api_route("/about", methods=["GET", "HEAD"])
 async def get_about_page():
     return FileResponse(frontend_dir / "about.html")
 
