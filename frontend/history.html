@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#176a58">
+    <meta name="description" content="Personal skin scan timeline and mole evolution tracker.">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <title>Dermalens | Scan History & Mole Tracker</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+</head>
+
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="/" aria-label="Dermalens home">
+                <span class="brand-mark" aria-hidden="true">D</span>
+                <span>dermalens</span>
+            </a>
+
+            <nav class="nav-links" aria-label="Main Navigation">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/scan" class="nav-link">AI Scanner</a>
+                <a href="/diseases" class="nav-link">Encyclopedia</a>
+                <a href="/history" class="nav-link is-active">Scan History</a>
+                <a href="/clinics" class="nav-link">Find Care</a>
+                <a href="/about" class="nav-link">About AI</a>
+            </nav>
+
+            <div class="topbar-actions">
+                <a href="/scan" class="launch-scan-btn">
+                    <span>🔬 Open Scanner</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="container" id="main">
+            <section class="intro" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">LONGITUDINAL MOLE SURVEILLANCE</p>
+                    <h1 id="page-title">Scan history &<br><em>mole evolution.</em></h1>
+                    <p class="intro-copy">Track skin spots over time. In dermatology, detecting evolving changes in size, border, and color is the single most critical factor for early diagnosis.</p>
+                </div>
+                <div class="intro-aside">
+                    <span class="aside-number" id="historyCounter">00 <span>/</span> 00</span>
+                    <span class="aside-label">Saved local scans on<br>this device</span>
+                    <span class="aside-line"></span>
+                </div>
+            </section>
+
+            <!-- History Actions Toolbar -->
+            <div class="history-toolbar">
+                <div class="history-toolbar-left">
+                    <a href="/scan" class="action-btn-primary">
+                        <span>+ Take New Scan</span>
+                    </a>
+                    <button id="compareBtn" class="action-btn-secondary" type="button" disabled>
+                        <span>🔄 Compare Selected (0/2)</span>
+                    </button>
+                </div>
+
+                <div class="history-toolbar-right">
+                    <button id="exportHistoryBtn" class="text-btn" type="button">
+                        <span>📥 Export Data</span>
+                    </button>
+                    <button id="clearHistoryBtn" class="text-btn is-danger" type="button">
+                        <span>🗑 Clear All</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Comparison Drawer (Hidden by default) -->
+            <div id="comparisonBox" class="comparison-box" hidden>
+                <div class="comparison-header">
+                    <h3>Side-by-Side Lesion Comparison</h3>
+                    <button id="closeCompareBtn" class="close-compare-btn" type="button">✕ Close</button>
+                </div>
+                <div class="comparison-grid" id="comparisonGrid"></div>
+            </div>
+
+            <!-- History Timeline Container -->
+            <div id="historyList" class="history-list" aria-live="polite">
+                <!-- Populated via JavaScript -->
+            </div>
+
+            <footer class="page-footer">
+                <p><strong>Private by design.</strong> Scan history is saved strictly inside your local browser storage. No medical photos or personal identifiers are uploaded or sold to third parties.</p>
+                <span>DERMALENS <span aria-hidden="true">·</span> PATIENT SURVEILLANCE</span>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        const historyList = document.getElementById("historyList");
+        const historyCounter = document.getElementById("historyCounter");
+        const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+        const exportHistoryBtn = document.getElementById("exportHistoryBtn");
+        const compareBtn = document.getElementById("compareBtn");
+        const comparisonBox = document.getElementById("comparisonBox");
+        const comparisonGrid = document.getElementById("comparisonGrid");
+        const closeCompareBtn = document.getElementById("closeCompareBtn");
+
+        let selectedForCompare = [];
+
+        function loadHistory() {
+            try {
+                const history = JSON.parse(localStorage.getItem("dermalens_scan_history") || "[]");
+                renderHistory(history);
+            } catch (e) {
+                historyList.innerHTML = `<p class="error-msg">Error loading stored history.</p>`;
+            }
+        }
+
+        function renderHistory(scans) {
+            const countStr = String(scans.length).padStart(2, '0');
+            historyCounter.innerHTML = `${countStr} <span>/</span> 50`;
+
+            if (scans.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-history-card">
+                        <span class="empty-icon">📋</span>
+                        <h3>No scan history recorded yet</h3>
+                        <p>Perform your first real-time scan or upload a skin lesion to begin tracking mole evolution over time.</p>
+                        <a href="/scan" class="action-btn-primary" style="margin-top: 14px;">
+                            <span>Launch AI Scanner Lab</span>
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            historyList.innerHTML = scans.map(item => {
+                const date = new Date(item.timestamp);
+                const formattedDate = date.toLocaleDateString(undefined, {
+                    month: 'short', day: 'numeric', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+
+                const isUrgent = ["Melanoma, NOS", "Basal cell carcinoma", "Squamous cell carcinoma, NOS"].includes(item.prediction);
+                const badgeClass = item.is_inconclusive ? 'badge-inconclusive' : (isUrgent ? 'badge-malignant' : 'badge-benign');
+                const isSelected = selectedForCompare.includes(item.id);
+
+                return `
+                    <article class="history-card ${isSelected ? 'is-selected' : ''}" data-id="${item.id}">
+                        <div class="history-select">
+                            <input type="checkbox" class="compare-checkbox" data-id="${item.id}" ${isSelected ? 'checked' : ''} aria-label="Select scan for comparison">
+                        </div>
+
+                        <div class="history-thumb-col">
+                            ${item.thumbnail ? `<img src="${item.thumbnail}" class="history-thumb" alt="Lesion thumbnail">` : `<div class="history-thumb-placeholder">📷</div>`}
+                        </div>
+
+                        <div class="history-info-col">
+                            <div class="history-meta">
+                                <span class="history-date">${formattedDate}</span>
+                                <span class="risk-badge ${badgeClass}">${item.is_inconclusive ? 'Inconclusive' : item.prediction}</span>
+                            </div>
+                            <h3 class="history-prediction">${item.prediction} <span class="history-confidence">(${item.confidence}%)</span></h3>
+                            
+                            ${item.top_predictions && item.top_predictions.length > 0 ? `
+                                <div class="history-differential-pills">
+                                    ${item.top_predictions.map(p => `
+                                        <span class="diff-pill">${p.disease}: <strong>${p.confidence}%</strong></span>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="history-actions-col">
+                            <button class="delete-scan-btn" data-id="${item.id}" type="button" title="Delete scan">
+                                🗑
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            // Wire delete buttons
+            document.querySelectorAll(".delete-scan-btn").forEach(btn => {
+                btn.addEventListener("click", e => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute("data-id");
+                    deleteScan(id);
+                });
+            });
+
+            // Wire comparison checkboxes
+            document.querySelectorAll(".compare-checkbox").forEach(box => {
+                box.addEventListener("change", () => {
+                    const id = box.getAttribute("data-id");
+                    if (box.checked) {
+                        if (selectedForCompare.length >= 2) {
+                            alert("You can select up to 2 scans to compare.");
+                            box.checked = false;
+                            return;
+                        }
+                        selectedForCompare.push(id);
+                    } else {
+                        selectedForCompare = selectedForCompare.filter(i => i !== id);
+                    }
+                    updateCompareButton();
+                    renderHistory(scans);
+                });
+            });
+        }
+
+        function deleteScan(id) {
+            let scans = JSON.parse(localStorage.getItem("dermalens_scan_history") || "[]");
+            scans = scans.filter(s => s.id !== id);
+            localStorage.setItem("dermalens_scan_history", JSON.stringify(scans));
+            selectedForCompare = selectedForCompare.filter(i => i !== id);
+            updateCompareButton();
+            renderHistory(scans);
+        }
+
+        function updateCompareButton() {
+            compareBtn.textContent = `🔄 Compare Selected (${selectedForCompare.length}/2)`;
+            compareBtn.disabled = selectedForCompare.length !== 2;
+        }
+
+        compareBtn.addEventListener("click", () => {
+            if (selectedForCompare.length !== 2) return;
+            const scans = JSON.parse(localStorage.getItem("dermalens_scan_history") || "[]");
+            const scan1 = scans.find(s => s.id === selectedForCompare[0]);
+            const scan2 = scans.find(s => s.id === selectedForCompare[1]);
+
+            if (!scan1 || !scan2) return;
+
+            comparisonGrid.innerHTML = [scan1, scan2].map((s, idx) => `
+                <div class="compare-card">
+                    <h4>Scan #${idx + 1} (${new Date(s.timestamp).toLocaleDateString()})</h4>
+                    <img src="${s.thumbnail || ''}" class="compare-img" alt="Comparison photo">
+                    <p class="compare-pred"><strong>${s.prediction}</strong> (${s.confidence}%)</p>
+                    <p class="compare-note">${s.description || ''}</p>
+                </div>
+            `).join('');
+
+            comparisonBox.hidden = false;
+            comparisonBox.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        closeCompareBtn.addEventListener("click", () => {
+            comparisonBox.hidden = true;
+        });
+
+        clearHistoryBtn.addEventListener("click", () => {
+            if (confirm("Are you sure you want to permanently clear all stored skin scans from this browser?")) {
+                localStorage.removeItem("dermalens_scan_history");
+                selectedForCompare = [];
+                updateCompareButton();
+                loadHistory();
+            }
+        });
+
+        exportHistoryBtn.addEventListener("click", () => {
+            const data = localStorage.getItem("dermalens_scan_history") || "[]";
+            const blob = new Blob([data], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `dermalens-scan-history-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        loadHistory();
+    </script>
+</body>
+</html>

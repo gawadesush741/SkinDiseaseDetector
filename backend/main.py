@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
@@ -340,14 +341,77 @@ async def predict(
 
 
 # ==========================================
+# MULTI-PAGE & CATALOG API ENDPOINTS
+# ==========================================
+
+@app.get("/api/diseases")
+async def get_diseases_catalog():
+    """Returns dynamic catalog of all 7 skin diseases for the encyclopedia."""
+    if disease_collection is not None:
+        try:
+            records = list(disease_collection.find({}, {"_id": 0}))
+            if records:
+                return {"diseases": records}
+        except Exception as e:
+            print(f"MongoDB catalog lookup failed: {e}")
+
+    category_map = {
+        "Melanoma, NOS": {"category": "malignant", "risk": "High (Malignant)", "color": "#ef4444"},
+        "Basal cell carcinoma": {"category": "malignant", "risk": "Moderate-High (Malignant)", "color": "#ef4444"},
+        "Squamous cell carcinoma, NOS": {"category": "malignant", "risk": "High (Malignant)", "color": "#ef4444"},
+        "Solar or actinic keratosis": {"category": "precancerous", "risk": "Pre-cancerous", "color": "#f59e0b"},
+        "Nevus": {"category": "benign", "risk": "Benign (Non-cancerous)", "color": "#10b981"},
+        "Pigmented benign keratosis": {"category": "benign", "risk": "Benign (Non-cancerous)", "color": "#10b981"},
+        "Dermatofibroma": {"category": "benign", "risk": "Benign (Non-cancerous)", "color": "#10b981"}
+    }
+
+    catalog = []
+    for name, info in DEFAULT_DISEASE_INFO.items():
+        cat = category_map.get(name, {"category": "benign", "risk": "Benign", "color": "#10b981"})
+        catalog.append({
+            "name": name,
+            "category": cat["category"],
+            "risk": cat["risk"],
+            "color": cat["color"],
+            "description": info.get("description", ""),
+            "causes": info.get("causes", []),
+            "general_care": info.get("general_care", []),
+            "medical_attention": info.get("medical_attention", "")
+        })
+
+    return {"diseases": catalog}
+
+
+frontend_dir = BASE_DIR / "frontend"
+
+@app.get("/scan")
+async def get_scan_page():
+    return FileResponse(frontend_dir / "scan.html")
+
+@app.get("/diseases")
+async def get_diseases_page():
+    return FileResponse(frontend_dir / "diseases.html")
+
+@app.get("/history")
+async def get_history_page():
+    return FileResponse(frontend_dir / "history.html")
+
+@app.get("/clinics")
+async def get_clinics_page():
+    return FileResponse(frontend_dir / "clinics.html")
+
+@app.get("/about")
+async def get_about_page():
+    return FileResponse(frontend_dir / "about.html")
+
+
+# ==========================================
 # HEALTH CHECK & SERVE FRONTEND
 # ==========================================
 
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "service": "Skin Disease AI"}
-
-frontend_dir = BASE_DIR / "frontend"
 
 if frontend_dir.exists():
     app.mount(

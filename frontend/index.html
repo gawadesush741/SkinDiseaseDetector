@@ -2,609 +2,233 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#176a58">
+    <meta name="description" content="AI-powered dermatology screening portal, realtime camera scanner, and educational skin health platform.">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA & Mobile Web App Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dermalens">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
-    <title>Dermalens | Skin Analysis</title>
+    <title>Dermalens | Skin Health & AI Screening Portal</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=3">
-
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 
-
 <body>
-
     <div class="app-shell">
         <header class="topbar">
-            <a class="brand" href="#main" aria-label="Dermalens home">
+            <a class="brand" href="/" aria-label="Dermalens home">
                 <span class="brand-mark" aria-hidden="true">D</span>
                 <span>dermalens</span>
             </a>
-            <div class="topbar-note"><span class="status-dot"></span> Skin image screening</div>
-            <span class="prototype-tag">EDUCATIONAL PROTOTYPE</span>
+
+            <nav class="nav-links" aria-label="Main Navigation">
+                <a href="/" class="nav-link is-active">Home</a>
+                <a href="/scan" class="nav-link">AI Scanner</a>
+                <a href="/diseases" class="nav-link">Encyclopedia</a>
+                <a href="/history" class="nav-link">Scan History</a>
+                <a href="/clinics" class="nav-link">Find Care</a>
+                <a href="/about" class="nav-link">About AI</a>
+            </nav>
+
+            <div class="topbar-actions">
+                <button id="installAppBtn" class="install-app-btn" type="button" hidden>
+                    <span class="install-icon" aria-hidden="true">📲</span>
+                    <span>Install App</span>
+                </button>
+                <a href="/scan" class="launch-scan-btn">
+                    <span>🔬 Open Scanner</span>
+                </a>
+            </div>
         </header>
 
         <main class="container" id="main">
-            <section class="intro" aria-labelledby="page-title">
-                <div>
-                    <p class="eyebrow">IMAGE ASSESSMENT</p>
-                    <h1 id="page-title">A closer look at<br><em>your skin.</em></h1>
-                    <p class="intro-copy">Upload a clear image of a skin lesion to receive an AI-generated screening summary.</p>
+            <!-- HERO SECTION -->
+            <section class="portal-hero">
+                <div class="portal-hero-content">
+                    <p class="eyebrow">DERMATOLOGY AI PORTAL</p>
+                    <h1 class="portal-hero-title">Early detection starts with <em>closer observation.</em></h1>
+                    <p class="portal-hero-copy">Dermalens combines deep learning computer vision with clinical knowledge bases to deliver real-time skin lesion screening, mole tracking, and educational guidance.</p>
+                    
+                    <div class="portal-hero-actions">
+                        <a href="/scan" class="hero-btn-primary">
+                            <span>Launch Live AI Scanner 🔬</span>
+                        </a>
+                        <a href="/diseases" class="hero-btn-secondary">
+                            <span>Browse Disease Encyclopedia 📚</span>
+                        </a>
+                    </div>
                 </div>
-                <div class="intro-aside">
-                    <span class="aside-number">01 <span>/</span> 02</span>
-                    <span class="aside-label">Add an image<br>to begin screening</span>
-                    <span class="aside-line"></span>
+
+                <div class="portal-hero-stats">
+                    <div class="stat-box">
+                        <span class="stat-number">07</span>
+                        <span class="stat-label">Classified Skin Lesions</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">Top-3</span>
+                        <span class="stat-label">Differential Diagnoses</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Private Local Storage</span>
+                    </div>
                 </div>
             </section>
 
-            <div class="workspace">
-                <section class="upload-panel" aria-labelledby="upload-title">
-                    <div class="panel-heading">
-                        <div>
-                            <p class="eyebrow">STEP 01</p>
-                            <h2 id="upload-title">Add an image</h2>
-                        </div>
-                        <span class="panel-index">01</span>
+            <!-- PLATFORM PILLARS (PORTAL CARDS) -->
+            <section class="portal-pillars-section">
+                <div class="section-header">
+                    <p class="eyebrow">CLINICAL SUITE</p>
+                    <h2>Explore the Dermalens Platform</h2>
+                </div>
+
+                <div class="pillars-grid">
+                    <a href="/scan" class="pillar-card">
+                        <span class="pillar-icon">📡</span>
+                        <h3>Realtime Camera Scanner Lab</h3>
+                        <p>Continuous live camera detection with laser reticle HUD, camera flip, and freeze-frame analysis.</p>
+                        <span class="pillar-link">Open Scanner Lab &rarr;</span>
+                    </a>
+
+                    <a href="/diseases" class="pillar-card">
+                        <span class="pillar-icon">📚</span>
+                        <h3>Skin Condition Encyclopedia</h3>
+                        <p>Search clinical facts, causes, general care, and dermoscopy markers for melanoma, carcinoma, and moles.</p>
+                        <span class="pillar-link">Explore Encyclopedia &rarr;</span>
+                    </a>
+
+                    <a href="/history" class="pillar-card">
+                        <span class="pillar-icon">📋</span>
+                        <h3>Patient Scan History</h3>
+                        <p>Track mole evolution and shape changes over time with side-by-side photographic comparison.</p>
+                        <span class="pillar-link">View Scan History &rarr;</span>
+                    </a>
+
+                    <a href="/clinics" class="pillar-card">
+                        <span class="pillar-icon">🏥</span>
+                        <h3>Dermatologist & Clinical Care</h3>
+                        <p>Learn emergency red flag warnings and generate printable handover summaries for doctor appointments.</p>
+                        <span class="pillar-link">Find Care Advice &rarr;</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- ABCDE MOLE CHECKER EDUCATIONAL SECTION -->
+            <section class="abcde-section">
+                <div class="section-header">
+                    <p class="eyebrow">PATIENT EDUCATION</p>
+                    <h2>The ABCDE Rule of Melanoma Detection</h2>
+                    <p class="section-copy">Dermatologists use this evidence-based clinical framework to screen atypical moles. If you spot any of these signs, seek a medical evaluation:</p>
+                </div>
+
+                <div class="abcde-grid">
+                    <div class="abcde-card">
+                        <span class="abcde-letter">A</span>
+                        <h4>Asymmetry</h4>
+                        <p>One half of the spot does not match the other half in shape or contour.</p>
                     </div>
 
-                    <label class="upload-zone" for="imageInput">
-                        <img id="imagePreview" class="image-preview" alt="Selected skin lesion preview" hidden>
-                        <span class="upload-content" id="uploadContent">
-                            <span class="upload-icon" aria-hidden="true">+</span>
-                            <span class="upload-title" id="uploadTitle">Choose an image</span>
-                            <span class="upload-subtitle" id="uploadSubtitle">or drag and drop it here</span>
-                            <span class="file-types">JPG, PNG or WEBP · up to 10 MB</span>
-                        </span>
-                        <input class="file-input" type="file" id="imageInput" accept="image/*">
-                    </label>
-
-                    <div class="camera-launch-row">
-                        <button id="cameraButton" class="camera-button" type="button" aria-controls="cameraPanel">Use camera</button>
+                    <div class="abcde-card">
+                        <span class="abcde-letter">B</span>
+                        <h4>Border</h4>
+                        <p>The edges are irregular, ragged, notched, blurred, or poorly defined.</p>
                     </div>
 
-                    <div id="cameraPanel" class="camera-panel" hidden>
-                        <video id="cameraVideo" class="camera-video" autoplay playsinline muted aria-label="Live camera preview"></video>
-                        <div class="camera-controls">
-                            <button id="captureButton" type="button">Capture photo</button>
-                            <button id="closeCameraButton" class="camera-close-button" type="button">Close camera</button>
-                        </div>
+                    <div class="abcde-card">
+                        <span class="abcde-letter">C</span>
+                        <h4>Color</h4>
+                        <p>The color is uneven, with varying shades of tan, brown, black, red, or white.</p>
                     </div>
 
-                    <div class="upload-actions">
-                        <p class="privacy-note"><span aria-hidden="true">●</span> Image is used for this analysis only</p>
-                        <button id="analyzeButton" type="button" disabled>
-                            <span>Analyze image</span><span class="button-arrow" aria-hidden="true">&#8594;</span>
-                        </button>
+                    <div class="abcde-card">
+                        <span class="abcde-letter">D</span>
+                        <h4>Diameter</h4>
+                        <p>The lesion is greater than 6 millimeters across (about the size of a pencil eraser).</p>
                     </div>
 
-                    <div class="photo-tips">
-                        <p class="photo-tips-title">💡 Tips for Accurate Analysis:</p>
-                        <ul>
-                            <li>Take a focused close-up centered on the skin lesion</li>
-                            <li>Ensure good, even lighting (avoid flash glare)</li>
-                            <li>Keep surrounding skin free from shadows or hair where possible</li>
-                        </ul>
+                    <div class="abcde-card">
+                        <span class="abcde-letter">E</span>
+                        <h4>Evolving</h4>
+                        <p>The mole is changing in size, shape, color, or symptoms (itching or bleeding).</p>
                     </div>
-                    <p id="loading" role="status" aria-live="polite"><span class="spinner"></span>Analyzing image...</p>
-                    <p id="uploadError" class="upload-error" role="alert" hidden></p>
-                </section>
+                </div>
+            </section>
 
-                <section class="result" aria-labelledby="result-title" aria-live="polite">
-                    <div class="panel-heading result-heading">
-                        <div>
-                            <p class="eyebrow">STEP 02</p>
-                            <h2 id="result-title">Screening summary</h2>
-                        </div>
-                        <span class="panel-index">02</span>
-                    </div>
+            <!-- 3-STEP WORKFLOW -->
+            <section class="workflow-section">
+                <div class="section-header">
+                    <p class="eyebrow">HOW IT WORKS</p>
+                    <h2>Screen Your Skin in 3 Easy Steps</h2>
+                </div>
 
-                    <div class="prediction-box" id="predictionBox">
-                        <div class="result-status"><span class="status-dot"></span><span id="resultStatus">AWAITING IMAGE</span></div>
-                        <div class="prediction" id="prediction">Your result will appear here</div>
-                        <div class="confidence" id="confidence">Confidence: -</div>
-
-                        <div id="inconclusiveAlert" class="inconclusive-banner" hidden>
-                            <span class="inconclusive-icon" aria-hidden="true">⚠️</span>
-                            <div>
-                                <strong>Low Confidence Alert</strong>
-                                <p id="inconclusiveText">The AI model detected low certainty (<45%). The image may be blurry, poorly lit, or not a recognized skin lesion.</p>
-                            </div>
-                        </div>
-
-                        <div id="differentialContainer" class="differential-container" hidden>
-                            <h4 class="differential-title">Differential Probabilities (Top-3):</h4>
-                            <div id="differentialList" class="differential-list"></div>
-                        </div>
+                <div class="workflow-steps">
+                    <div class="step-card">
+                        <span class="step-number">01</span>
+                        <h4>Aim or Upload Photo</h4>
+                        <p>Open the realtime camera scanner or upload a close-up, focused photo of the mole.</p>
                     </div>
 
-                    <div class="result-details">
-                        <section class="section">
-                            <h3>Description</h3>
-                            <p id="description">A screening summary will be available after image analysis.</p>
-                        </section>
-                        <div class="detail-columns">
-                            <section class="section">
-                                <h3>Associations</h3>
-                                <ul id="causes"><li>Not available yet</li></ul>
-                            </section>
-                            <section class="section">
-                                <h3>General care</h3>
-                                <ul id="generalCare"><li>Not available yet</li></ul>
-                            </section>
-                        </div>
+                    <div class="step-card">
+                        <span class="step-number">02</span>
+                        <h4>Neural Network Inference</h4>
+                        <p>The deep learning ResNet-18 model classifies the lesion against benchmark dermoscopy datasets.</p>
                     </div>
 
-                    <div class="warning">
-                        <span class="warning-icon" aria-hidden="true">!</span>
-                        <div>
-                            <h3>When to seek medical attention</h3>
-                            <p id="medicalAttention">Consult a qualified healthcare professional about any concerning, changing, or persistent skin lesion.</p>
-                        </div>
+                    <div class="step-card">
+                        <span class="step-number">03</span>
+                        <h4>Review Top-3 & Save</h4>
+                        <p>Examine differential probabilities, general care advice, and export a clean PDF for your doctor.</p>
                     </div>
+                </div>
 
-                    <div class="report-actions" id="reportActions" hidden>
-                        <button type="button" id="printReportButton" class="print-button">
-                            <span>📄 Print / Save Summary (PDF)</span>
-                        </button>
-                    </div>
-                </section>
-            </div>
+                <div style="text-align: center; margin-top: 32px;">
+                    <a href="/scan" class="hero-btn-primary">
+                        <span>Get Started with a Scan &rarr;</span>
+                    </a>
+                </div>
+            </section>
 
             <footer class="page-footer">
-                <p><strong>For education, not diagnosis.</strong> AI predictions can be incorrect and should not replace professional medical advice.</p>
-                <span>DERMALENS <span aria-hidden="true">·</span> SCREENING TOOL</span>
+                <p><strong>Educational prototype only.</strong> Artificial intelligence algorithms cannot replace a biopsy or direct physical dermoscopy examination by a dermatologist.</p>
+                <span>DERMALENS <span aria-hidden="true">·</span> SKIN HEALTH PLATFORM</span>
             </footer>
         </main>
     </div>
 
-
-    <!-- JavaScript -->
-
+    <!-- PWA Installation Registration -->
     <script>
+        let deferredPrompt = null;
+        const installAppBtn = document.getElementById("installAppBtn");
 
-        function getApiUrl() {
-            // Standalone frontend development (Live Server port 5500/5501 or direct file:// preview)
-            if (window.location.protocol === "file:" || ["5500", "5501", "3000", "5173"].includes(window.location.port)) {
-                return "http://127.0.0.1:8000/predict";
-            }
-            // Same-origin backend (FastAPI serves frontend locally or in cloud production)
-            return "/predict";
-        }
-
-        const imageInput =
-            document.getElementById(
-                "imageInput"
-            );
-
-        const analyzeButton =
-            document.getElementById(
-                "analyzeButton"
-            );
-
-        const loading =
-            document.getElementById(
-                "loading"
-            );
-
-        const imagePreview =
-            document.getElementById("imagePreview");
-
-        const uploadTitle =
-            document.getElementById("uploadTitle");
-
-        const uploadSubtitle =
-            document.getElementById("uploadSubtitle");
-
-        const uploadError =
-            document.getElementById("uploadError");
-
-        const resultStatus =
-            document.getElementById("resultStatus");
-
-        const uploadZone =
-            document.querySelector(".upload-zone");
-
-        const cameraButton =
-            document.getElementById("cameraButton");
-
-        const cameraPanel =
-            document.getElementById("cameraPanel");
-
-        const cameraVideo =
-            document.getElementById("cameraVideo");
-
-        const captureButton =
-            document.getElementById("captureButton");
-
-        const closeCameraButton =
-            document.getElementById("closeCameraButton");
-
-        let previewUrl = null;
-        let cameraStream = null;
-
-        function stopCamera() {
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(function (track) {
-                    track.stop();
-                });
-                cameraStream = null;
-            }
-
-            cameraVideo.srcObject = null;
-            cameraPanel.hidden = true;
-            cameraButton.disabled = false;
-        }
-
-        imageInput.addEventListener("change", function () {
-            stopCamera();
-            const file = imageInput.files[0];
-            uploadError.hidden = true;
-
-            if (previewUrl) {
-                URL.revokeObjectURL(previewUrl);
-                previewUrl = null;
-            }
-
-            if (!file) {
-                imagePreview.hidden = true;
-                imagePreview.removeAttribute("src");
-                uploadTitle.textContent = "Choose an image";
-                uploadSubtitle.textContent = "or drag and drop it here";
-                analyzeButton.disabled = true;
-                return;
-            }
-
-            if (!file.type.startsWith("image/") || file.size > 10 * 1024 * 1024) {
-                imageInput.value = "";
-                imagePreview.hidden = true;
-                imagePreview.removeAttribute("src");
-                uploadTitle.textContent = "Choose an image";
-                uploadSubtitle.textContent = "or drag and drop it here";
-                uploadError.textContent = file.size > 10 * 1024 * 1024
-                    ? "This image is larger than 10 MB. Choose a smaller file."
-                    : "Choose an image file to continue.";
-                uploadError.hidden = false;
-                analyzeButton.disabled = true;
-                return;
-            }
-
-            previewUrl = URL.createObjectURL(file);
-            imagePreview.src = previewUrl;
-            imagePreview.hidden = false;
-            uploadTitle.textContent = file.name;
-            uploadSubtitle.textContent = "Image ready for screening · choose another image";
-            analyzeButton.disabled = false;
+        window.addEventListener("beforeinstallprompt", e => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installAppBtn) installAppBtn.hidden = false;
         });
 
-        cameraButton.addEventListener("click", async function () {
-            uploadError.hidden = true;
-
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                uploadError.textContent = "Camera access is unavailable in this browser. Use a secure connection or select an image file instead.";
-                uploadError.hidden = false;
-                return;
-            }
-
-            cameraButton.disabled = true;
-
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: { ideal: "environment" } },
-                    audio: false
-                });
-                cameraVideo.srcObject = cameraStream;
-                cameraPanel.hidden = false;
-                await cameraVideo.play();
-            } catch (error) {
-                stopCamera();
-                uploadError.textContent = error.name === "NotAllowedError"
-                    ? "Camera permission was denied. Allow camera access in your browser settings or select an image file."
-                    : "Unable to open the camera. Check that it is connected and not being used by another app.";
-                uploadError.hidden = false;
-            }
-        });
-
-        captureButton.addEventListener("click", function () {
-            if (!cameraVideo.videoWidth || !cameraVideo.videoHeight) {
-                uploadError.textContent = "The camera is still starting. Try capturing again in a moment.";
-                uploadError.hidden = false;
-                return;
-            }
-
-            const scale = Math.min(1, 1600 / Math.max(cameraVideo.videoWidth, cameraVideo.videoHeight));
-            const canvas = document.createElement("canvas");
-            canvas.width = Math.round(cameraVideo.videoWidth * scale);
-            canvas.height = Math.round(cameraVideo.videoHeight * scale);
-            canvas.getContext("2d").drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-            captureButton.disabled = true;
-
-            canvas.toBlob(function (blob) {
-                captureButton.disabled = false;
-
-                if (!blob) {
-                    uploadError.textContent = "The camera image could not be captured. Please try again.";
-                    uploadError.hidden = false;
-                    return;
+        if (installAppBtn) {
+            installAppBtn.addEventListener("click", async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt = null;
                 }
-
-                const file = new File([blob], "camera-capture.jpg", {
-                    type: "image/jpeg",
-                    lastModified: Date.now()
-                });
-                const transfer = new DataTransfer();
-                transfer.items.add(file);
-                imageInput.files = transfer.files;
-                stopCamera();
-                imageInput.dispatchEvent(new Event("change", { bubbles: true }));
-            }, "image/jpeg", 0.9);
-        });
-
-        closeCameraButton.addEventListener("click", stopCamera);
-        window.addEventListener("pagehide", stopCamera);
-
-        const printReportButton = document.getElementById("printReportButton");
-        if (printReportButton) {
-            printReportButton.addEventListener("click", function () {
-                window.print();
             });
         }
 
-        uploadZone.addEventListener("dragover", function (event) {
-            event.preventDefault();
-            uploadZone.classList.add("is-dragging");
-        });
-
-        uploadZone.addEventListener("dragleave", function (event) {
-            if (!uploadZone.contains(event.relatedTarget)) {
-                uploadZone.classList.remove("is-dragging");
-            }
-        });
-
-        uploadZone.addEventListener("drop", function (event) {
-            event.preventDefault();
-            uploadZone.classList.remove("is-dragging");
-
-            if (event.dataTransfer.files.length) {
-                const transfer = new DataTransfer();
-                transfer.items.add(event.dataTransfer.files[0]);
-                imageInput.files = transfer.files;
-                imageInput.dispatchEvent(new Event("change", { bubbles: true }));
-            }
-        });
-
-
-        analyzeButton.addEventListener(
-            "click",
-            async function () {
-
-                const file =
-                    imageInput.files[0];
-
-
-                if (!file) {
-                    uploadError.textContent = "Choose an image before starting the analysis.";
-                    uploadError.hidden = false;
-                    return;
-
-                }
-
-
-                // Show loading
-
-                loading.style.display =
-                    "block";
-
-                resultStatus.textContent = "ANALYSIS IN PROGRESS";
-
-                analyzeButton.disabled =
-                    true;
-
-
-                // Create form data
-
-                const formData =
-                    new FormData();
-
-                formData.append(
-                    "file",
-                    file
-                );
-
-
-                try {
-
-                    // Send image to FastAPI
-
-                    const response =
-                        await fetch(
-                            getApiUrl(),
-                            {
-                                method: "POST",
-                                body: formData
-                            }
-                        );
-
-
-                    if (!response.ok) {
-                        let errorDetail = "Server returned an error.";
-                        try {
-                            const errBody = await response.json();
-                            if (errBody && errBody.detail) errorDetail = errBody.detail;
-                        } catch (e) {}
-                        throw new Error(errorDetail);
-                    }
-
-
-                    const data =
-                        await response.json();
-
-
-                    // Prediction
-
-                    document.getElementById(
-                        "prediction"
-                    ).textContent =
-                        data.prediction;
-
-                    resultStatus.textContent = "SCREENING COMPLETE";
-
-
-                    // Confidence
-
-                    document.getElementById(
-                        "confidence"
-                    ).textContent =
-                        "Confidence: "
-                        + data.confidence
-                        + "%";
-
-                    // Low confidence / Inconclusive handling
-                    const inconclusiveAlert = document.getElementById("inconclusiveAlert");
-                    const inconclusiveText = document.getElementById("inconclusiveText");
-                    if (data.is_inconclusive) {
-                        inconclusiveText.textContent = data.inconclusive_notice || "The model identified this lesion with low confidence (<45%). Please consult a dermatologist.";
-                        inconclusiveAlert.hidden = false;
-                        resultStatus.textContent = "INCONCLUSIVE / LOW CONFIDENCE";
-                    } else {
-                        inconclusiveAlert.hidden = true;
-                    }
-
-                    // Differential Diagnoses (Top-3)
-                    const differentialContainer = document.getElementById("differentialContainer");
-                    const differentialList = document.getElementById("differentialList");
-                    differentialList.innerHTML = "";
-
-                    if (data.top_predictions && data.top_predictions.length > 0) {
-                        data.top_predictions.forEach(function (item) {
-                            const row = document.createElement("div");
-                            row.className = "diff-row";
-                            row.innerHTML =
-                                '<div class="diff-header">' +
-                                    '<span class="diff-name">' + item.disease + '</span>' +
-                                    '<span class="diff-pct">' + item.confidence + '%</span>' +
-                                '</div>' +
-                                '<div class="diff-bar-track">' +
-                                    '<div class="diff-bar-fill" style="width: ' + Math.min(100, Math.max(4, item.confidence)) + '%"></div>' +
-                                '</div>';
-                            differentialList.appendChild(row);
-                        });
-                        differentialContainer.hidden = false;
-                    } else {
-                        differentialContainer.hidden = true;
-                    }
-
-                    // Show Print / Save Action
-                    const reportActions = document.getElementById("reportActions");
-                    if (reportActions) reportActions.hidden = false;
-
-
-                    // Description
-
-                    document.getElementById(
-                        "description"
-                    ).textContent =
-                        data.description;
-
-
-                    // Causes
-
-                    const causesList =
-                        document.getElementById(
-                            "causes"
-                        );
-
-                    causesList.innerHTML = "";
-
-
-                    data.causes.forEach(
-                        function (cause) {
-
-                            const li =
-                                document.createElement(
-                                    "li"
-                                );
-
-                            li.textContent =
-                                cause;
-
-                            causesList.appendChild(
-                                li
-                            );
-
-                        }
-                    );
-
-
-                    // General Care
-
-                    const careList =
-                        document.getElementById(
-                            "generalCare"
-                        );
-
-                    careList.innerHTML = "";
-
-
-                    data.general_care.forEach(
-                        function (care) {
-
-                            const li =
-                                document.createElement(
-                                    "li"
-                                );
-
-                            li.textContent =
-                                care;
-
-                            careList.appendChild(
-                                li
-                            );
-
-                        }
-                    );
-
-
-                    // Medical Attention
-
-                    document.getElementById(
-                        "medicalAttention"
-                    ).textContent =
-                        data.medical_attention;
-
-                }
-
-
-                catch (error) {
-
-                    console.error(error);
-                    resultStatus.textContent = "ANALYSIS UNAVAILABLE";
-                    uploadError.textContent = error.message || "Unable to analyze this image. Check that the screening service is running and try again.";
-                    uploadError.hidden = false;
-
-                }
-
-
-                finally {
-
-                    loading.style.display =
-                        "none";
-
-                    analyzeButton.disabled =
-                        false;
-
-                }
-
-            }
-        );
-
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
     </script>
-
 </body>
-
 </html>

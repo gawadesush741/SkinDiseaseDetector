@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#176a58">
+    <meta name="description" content="Clinical guidance, urgent symptom red flags, and dermatologist directory.">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <title>Dermalens | Find Care & Clinical Guidance</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+</head>
+
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="/" aria-label="Dermalens home">
+                <span class="brand-mark" aria-hidden="true">D</span>
+                <span>dermalens</span>
+            </a>
+
+            <nav class="nav-links" aria-label="Main Navigation">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/scan" class="nav-link">AI Scanner</a>
+                <a href="/diseases" class="nav-link">Encyclopedia</a>
+                <a href="/history" class="nav-link">Scan History</a>
+                <a href="/clinics" class="nav-link is-active">Find Care</a>
+                <a href="/about" class="nav-link">About AI</a>
+            </nav>
+
+            <div class="topbar-actions">
+                <a href="/scan" class="launch-scan-btn">
+                    <span>🔬 Open Scanner</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="container" id="main">
+            <section class="intro" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">PROFESSIONAL CONSULTATION SUPPORT</p>
+                    <h1 id="page-title">Clinical care &<br><em>dermatology access.</em></h1>
+                    <p class="intro-copy">AI is an educational screening aid, not a diagnostic verdict. Learn when to seek immediate medical review and how to prepare for your clinical examination.</p>
+                </div>
+                <div class="intro-aside">
+                    <span class="aside-number">01 <span>/</span> 03</span>
+                    <span class="aside-label">Red flag warnings &<br>dermatologist prep</span>
+                    <span class="aside-line"></span>
+                </div>
+            </section>
+
+            <div class="clinics-layout">
+                <!-- RED FLAGS CHECKLIST -->
+                <section class="clinic-card urgent-card">
+                    <div class="clinic-card-header">
+                        <span class="card-icon">🚨</span>
+                        <div>
+                            <h2>Urgent Red Flags: When to See a Doctor Promptly</h2>
+                            <p class="card-sub">If you notice any of the following signs, do not rely on AI screening. Schedule a medical examination immediately:</p>
+                        </div>
+                    </div>
+
+                    <ul class="red-flag-list">
+                        <li><strong>Spontaneous Bleeding or Oozing:</strong> A mole or spot that crusts, bleeds without trauma, or does not heal after 3 weeks.</li>
+                        <li><strong>Rapid Size or Shape Changes:</strong> Any lesion noticeably expanding over a period of weeks or months.</li>
+                        <li><strong>Multi-Colored Heterogeneity:</strong> Presence of uneven shades of black, dark brown, red, blue, or white within the same lesion.</li>
+                        <li><strong>Loss of Border Definition:</strong> Margins that are scalloped, ragged, notched, or fading indistinctly into normal skin.</li>
+                        <li><strong>New Sensory Symptoms:</strong> Persistent itching, pain, tenderness, or numbness around the spot.</li>
+                        <li><strong>The "Ugly Duckling" Sign:</strong> A mole that looks distinctly different from all other moles on your body.</li>
+                    </ul>
+                </section>
+
+                <!-- QUESTIONS TO ASK YOUR DERMATOLOGIST -->
+                <section class="clinic-card">
+                    <div class="clinic-card-header">
+                        <span class="card-icon">📋</span>
+                        <div>
+                            <h2>What to Ask During Your Consultation</h2>
+                            <p class="card-sub">Take these clinical questions with your printed Dermalens summary to your appointment:</p>
+                        </div>
+                    </div>
+
+                    <ol class="prep-question-list">
+                        <li>"Does this lesion require dermoscopic evaluation or a diagnostic punch/shave biopsy?"</li>
+                        <li>"What features indicate whether this is a dysplastic nevus or a malignant lesion?"</li>
+                        <li>"How frequently should I undergo total-body photographic skin examinations?"</li>
+                        <li>"Given my skin type and family history, what is my baseline melanoma risk profile?"</li>
+                    </ol>
+
+                    <div style="margin-top: 18px;">
+                        <a href="/scan" class="action-btn-primary">
+                            <span>Open Scanner to Generate Doctor Handover PDF</span>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- CERTIFIED DERMATOLOGY DIRECTORIES -->
+                <section class="clinic-card">
+                    <div class="clinic-card-header">
+                        <span class="card-icon">🌐</span>
+                        <div>
+                            <h2>Certified Dermatology Directories & Resources</h2>
+                            <p class="card-sub">Locate board-certified dermatologists and verified tele-health providers:</p>
+                        </div>
+                    </div>
+
+                    <div class="resources-grid">
+                        <a href="https://www.aad.org/find-a-derm" target="_blank" rel="noopener noreferrer" class="resource-link-card">
+                            <strong>American Academy of Dermatology (AAD)</strong>
+                            <span>Find board-certified dermatologists across the United States.</span>
+                            <span class="external-tag">Visit Official Directory ↗</span>
+                        </a>
+
+                        <a href="https://www.bad.org.uk/" target="_blank" rel="noopener noreferrer" class="resource-link-card">
+                            <strong>British Association of Dermatologists (BAD)</strong>
+                            <span>UK certified clinical guidelines and patient information leaflets.</span>
+                            <span class="external-tag">Visit Official Directory ↗</span>
+                        </a>
+
+                        <a href="https://www.skincancer.org/" target="_blank" rel="noopener noreferrer" class="resource-link-card">
+                            <strong>The Skin Cancer Foundation</strong>
+                            <span>Global prevention, early detection guidance, and sun protection facts.</span>
+                            <span class="external-tag">Visit Official Site ↗</span>
+                        </a>
+
+                        <a href="https://eadv.org/" target="_blank" rel="noopener noreferrer" class="resource-link-card">
+                            <strong>European Academy of Dermatology (EADV)</strong>
+                            <span>European network of accredited clinical dermatology centers.</span>
+                            <span class="external-tag">Visit Official Site ↗</span>
+                        </a>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="page-footer">
+                <p><strong>Clinical Disclaimer:</strong> Dermalens is an educational software prototype. In the event of a medical emergency or suspicious lesion, seek prompt consultation with a licensed healthcare professional.</p>
+                <span>DERMALENS <span aria-hidden="true">·</span> CLINICAL CARE</span>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#176a58">
+    <meta name="description" content="Technical methodology, deep learning architecture, and medical ethics behind Dermalens AI.">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <title>Dermalens | AI Methodology & Ethics</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+</head>
+
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="/" aria-label="Dermalens home">
+                <span class="brand-mark" aria-hidden="true">D</span>
+                <span>dermalens</span>
+            </a>
+
+            <nav class="nav-links" aria-label="Main Navigation">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/scan" class="nav-link">AI Scanner</a>
+                <a href="/diseases" class="nav-link">Encyclopedia</a>
+                <a href="/history" class="nav-link">Scan History</a>
+                <a href="/clinics" class="nav-link">Find Care</a>
+                <a href="/about" class="nav-link is-active">About AI</a>
+            </nav>
+
+            <div class="topbar-actions">
+                <a href="/scan" class="launch-scan-btn">
+                    <span>🔬 Open Scanner</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="container" id="main">
+            <section class="intro" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">TRANSPARENT AI ARCHITECTURE</p>
+                    <h1 id="page-title">Machine learning model<br><em>& clinical ethics.</em></h1>
+                    <p class="intro-copy">Dermalens is engineered on transparent deep learning principles, incorporating residual convolutional networks, balanced loss functions, and ethical safety boundaries.</p>
+                </div>
+                <div class="intro-aside">
+                    <span class="aside-number">03 <span>/</span> 03</span>
+                    <span class="aside-label">ResNet-18 &<br>ISIC Benchmark</span>
+                    <span class="aside-line"></span>
+                </div>
+            </section>
+
+            <div class="about-grid">
+                <!-- MODEL ARCHITECTURE -->
+                <article class="about-card">
+                    <div class="about-card-badge">01 · ARCHITECTURE</div>
+                    <h2>Deep Residual Learning (ResNet-18)</h2>
+                    <p>The classification backbone utilizes a <strong>ResNet-18</strong> convolutional neural network pre-trained on ImageNet and fine-tuned for dermatological dermoscopy. The residual skip connections prevent vanishing gradient problems, allowing the network to retain fine-grained micro-features (pigment network reticulation, globules, and atypical vascular structures).</p>
+                    <div class="tech-spec-table">
+                        <div class="tech-row"><span>Input Dimensions:</span> <strong>224 × 224 × 3 RGB</strong></div>
+                        <div class="tech-row"><span>Loss Function:</span> <strong>Weighted Cross-Entropy</strong></div>
+                        <div class="tech-row"><span>Inference Engine:</span> <strong>PyTorch CPU Execution</strong></div>
+                        <div class="tech-row"><span>Model Parameters:</span> <strong>~11.2 Million</strong></div>
+                    </div>
+                </article>
+
+                <!-- DATASET BENCHMARK -->
+                <article class="about-card">
+                    <div class="about-card-badge">02 · DATASET</div>
+                    <h2>HAM10000 & ISIC Benchmark</h2>
+                    <p>The training distribution incorporates verified dermoscopy cases from the <strong>International Skin Imaging Collaboration (ISIC)</strong> and <strong>HAM10000</strong> ("Human Against Machine with 10,000 training images") collection from the Medical University of Vienna and Cliff Rosendahl in Queensland, Australia.</p>
+                    <ul class="dataset-class-list">
+                        <li><strong>Nevus (nv):</strong> Common benign melanocytic mole</li>
+                        <li><strong>Melanoma (mel):</strong> Invasive malignant melanocytic tumor</li>
+                        <li><strong>Basal Cell Carcinoma (bcc):</strong> Common non-melanoma skin cancer</li>
+                        <li><strong>Squamous Cell Carcinoma (scc):</strong> Keratinocyte malignancy</li>
+                        <li><strong>Actinic Keratoses (akiec):</strong> Solar UV precancerous lesion</li>
+                        <li><strong>Pigmented Benign Keratosis (bkl):</strong> Seborrheic keratosis / solar lentigo</li>
+                        <li><strong>Dermatofibroma (df):</strong> Benign histiocytic skin growth</li>
+                    </ul>
+                </article>
+
+                <!-- DEMOGRAPHIC & SKIN TONE DIVERSITY -->
+                <article class="about-card">
+                    <div class="about-card-badge">03 · DIVERSITY & BIAS</div>
+                    <h2>Fitzpatrick Skin Phototype Statement</h2>
+                    <p>Standard historical dermoscopy benchmarks (including HAM10000) feature an over-representation of fair skin tones (Fitzpatrick phototypes I–III). Accuracy may decrease when assessing pigmented lesions in darker skin tones (types IV–VI), such as acral lentiginous melanoma on palms and soles.</p>
+                    <div class="bias-notice-box">
+                        <p><strong>Recommendation:</strong> For patients with skin phototypes IV–VI, algorithmic predictions must be verified by a clinician specialized in ethnic dermatology.</p>
+                    </div>
+                </article>
+
+                <!-- REGULATORY & DISCLAIMER -->
+                <article class="about-card full-width">
+                    <div class="about-card-badge">04 · REGULATORY POSTURE</div>
+                    <h2>Educational Prototype Disclaimer</h2>
+                    <p>Dermalens AI is distributed solely for research and educational demonstrations. It is not an FDA-cleared, CE-marked, or MHRA-approved diagnostic medical device. It should never be used as a primary diagnostic instrument, nor should medical interventions or biopsies be initiated or withheld based solely on algorithmic output.</p>
+                    <div style="margin-top: 16px;">
+                        <a href="/scan" class="action-btn-primary">
+                            <span>Open Scanner Lab</span>
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            <footer class="page-footer">
+                <p><strong>For research and education only.</strong> Developed as a multimodal AI prototype pairing computer vision and clinical knowledge bases.</p>
+                <span>DERMALENS <span aria-hidden="true">·</span> TECHNICAL METHODOLOGY</span>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

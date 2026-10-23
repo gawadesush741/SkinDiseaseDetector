@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Dermalens AI",
+    "slug": "dermalens-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#176a58"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Dermalens requires camera access for real-time skin lesion screening."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#176a58"
+      },
+      "permissions": [
+        "android.permission.CAMERA"
+      ],
+      "package": "com.dermalens.ai"
+    }
+  }
+}

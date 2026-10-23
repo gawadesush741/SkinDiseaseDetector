@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#176a58">
+    <meta name="description" content="Comprehensive encyclopedia of skin lesions and dermatological conditions.">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <title>Dermalens | Skin Disease Encyclopedia</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+</head>
+
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="/" aria-label="Dermalens home">
+                <span class="brand-mark" aria-hidden="true">D</span>
+                <span>dermalens</span>
+            </a>
+
+            <nav class="nav-links" aria-label="Main Navigation">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/scan" class="nav-link">AI Scanner</a>
+                <a href="/diseases" class="nav-link is-active">Encyclopedia</a>
+                <a href="/history" class="nav-link">Scan History</a>
+                <a href="/clinics" class="nav-link">Find Care</a>
+                <a href="/about" class="nav-link">About AI</a>
+            </nav>
+
+            <div class="topbar-actions">
+                <a href="/scan" class="launch-scan-btn">
+                    <span>🔬 Open Scanner</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="container" id="main">
+            <section class="intro" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">DERMATOLOGY KNOWLEDGE BASE</p>
+                    <h1 id="page-title">Skin condition<br><em>encyclopedia.</em></h1>
+                    <p class="intro-copy">Explore clinical facts, dermoscopy patterns, causes, and care guidelines for all 7 skin lesions classified by the Dermalens AI model.</p>
+                </div>
+                <div class="intro-aside">
+                    <span class="aside-number">07 <span>/</span> 07</span>
+                    <span class="aside-label">Classified lesions &<br>dermoscopy patterns</span>
+                    <span class="aside-line"></span>
+                </div>
+            </section>
+
+            <!-- Search & Category Filters -->
+            <div class="encyclopedia-toolbar">
+                <div class="search-box">
+                    <span class="search-icon" aria-hidden="true">🔍</span>
+                    <input type="text" id="diseaseSearch" class="search-input" placeholder="Search by disease name, causes, or symptoms..." aria-label="Search conditions">
+                </div>
+
+                <div class="category-filters" role="tablist" aria-label="Condition categories">
+                    <button class="filter-pill is-active" data-category="all" type="button">All Conditions (7)</button>
+                    <button class="filter-pill" data-category="malignant" type="button">Malignant / High Risk (3)</button>
+                    <button class="filter-pill" data-category="precancerous" type="button">Pre-cancerous (1)</button>
+                    <button class="filter-pill" data-category="benign" type="button">Benign / Non-cancerous (3)</button>
+                </div>
+            </div>
+
+            <!-- Dynamic Diseases Grid -->
+            <div id="diseaseGrid" class="disease-grid" aria-live="polite">
+                <!-- Dynamically populated via JavaScript -->
+                <div class="grid-loading"><span class="spinner"></span> Loading medical knowledge base...</div>
+            </div>
+
+            <footer class="page-footer">
+                <p><strong>For educational use only, not clinical diagnosis.</strong> Always consult a qualified dermatologist for definitive clinical diagnosis and biopsy evaluation.</p>
+                <span>DERMALENS <span aria-hidden="true">·</span> MEDICAL ENCYCLOPEDIA</span>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        const diseaseGrid = document.getElementById("diseaseGrid");
+        const diseaseSearch = document.getElementById("diseaseSearch");
+        const filterPills = document.querySelectorAll(".filter-pill");
+
+        let allDiseases = [];
+        let currentFilter = "all";
+        let searchQuery = "";
+
+        async function fetchDiseases() {
+            try {
+                const res = await fetch("/api/diseases");
+                if (res.ok) {
+                    const data = await res.json();
+                    allDiseases = data.diseases || [];
+                    renderCards();
+                } else {
+                    diseaseGrid.innerHTML = `<p class="error-msg">Unable to load encyclopedia data.</p>`;
+                }
+            } catch (e) {
+                diseaseGrid.innerHTML = `<p class="error-msg">Connection error loading medical encyclopedia.</p>`;
+            }
+        }
+
+        function renderCards() {
+            const filtered = allDiseases.filter(d => {
+                const matchesCategory = (currentFilter === "all") || (d.category === currentFilter);
+                const q = searchQuery.toLowerCase();
+                const matchesSearch = !q || 
+                    d.name.toLowerCase().includes(q) || 
+                    d.description.toLowerCase().includes(q) || 
+                    d.causes.some(c => c.toLowerCase().includes(q));
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                diseaseGrid.innerHTML = `
+                    <div class="no-results-card">
+                        <h3>No matching skin conditions found</h3>
+                        <p>Try searching for a different keyword or select "All Conditions".</p>
+                    </div>
+                `;
+                return;
+            }
+
+            diseaseGrid.innerHTML = filtered.map(d => {
+                const categoryClass = 'badge-' + (d.category || 'benign');
+                return `
+                    <article class="condition-card" data-category="${d.category}">
+                        <div class="condition-card-header">
+                            <div>
+                                <span class="risk-badge ${categoryClass}">${d.risk || 'Condition'}</span>
+                                <h2 class="condition-title">${d.name}</h2>
+                            </div>
+                        </div>
+
+                        <p class="condition-desc">${d.description}</p>
+
+                        <div class="condition-section">
+                            <h4>Key Causes & Risk Factors:</h4>
+                            <ul>
+                                ${d.causes.map(c => `<li>${c}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <div class="condition-section">
+                            <h4>Recommended Care:</h4>
+                            <ul>
+                                ${d.general_care.map(g => `<li>${g}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <div class="condition-warning-box">
+                            <strong>⚠️ Medical Attention:</strong>
+                            <p>${d.medical_attention}</p>
+                        </div>
+
+                        <div class="condition-card-actions">
+                            <a href="/scan" class="card-scan-btn">
+                                <span>Scan for this lesion &rarr;</span>
+                            </a>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        filterPills.forEach(pill => {
+            pill.addEventListener("click", () => {
+                filterPills.forEach(p => p.classList.remove("is-active"));
+                pill.classList.add("is-active");
+                currentFilter = pill.getAttribute("data-category");
+                renderCards();
+            });
+        });
+
+        diseaseSearch.addEventListener("input", e => {
+            searchQuery = e.target.value.trim();
+            renderCards();
+        });
+
+        fetchDiseases();
+    </script>
+</body>
+</html>

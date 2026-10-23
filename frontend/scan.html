@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#176a58">
+    <meta name="description" content="Dedicated Realtime Skin Lesion Scanner Lab powered by AI.">
+
+    <!-- PWA & Mobile Web App Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dermalens">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <title>Dermalens | AI Scanner Lab</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+</head>
+
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="/" aria-label="Dermalens home">
+                <span class="brand-mark" aria-hidden="true">D</span>
+                <span>dermalens</span>
+            </a>
+
+            <nav class="nav-links" aria-label="Main Navigation">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/scan" class="nav-link is-active">AI Scanner</a>
+                <a href="/diseases" class="nav-link">Encyclopedia</a>
+                <a href="/history" class="nav-link">Scan History</a>
+                <a href="/clinics" class="nav-link">Find Care</a>
+                <a href="/about" class="nav-link">About AI</a>
+            </nav>
+
+            <div class="topbar-actions">
+                <button id="installAppBtn" class="install-app-btn" type="button" hidden>
+                    <span class="install-icon" aria-hidden="true">📲</span>
+                    <span>Install App</span>
+                </button>
+                <div class="topbar-note"><span class="status-dot"></span> Lab Online</div>
+            </div>
+        </header>
+
+        <main class="container" id="main">
+            <section class="intro" aria-labelledby="page-title">
+                <div>
+                    <p class="eyebrow">DERMATOLOGY AI SCANNER</p>
+                    <h1 id="page-title">Realtime lesion screening<br><em>& diagnostic lab.</em></h1>
+                    <p class="intro-copy">Align your camera over the skin lesion for live AI detection or upload a clear dermoscopy photo.</p>
+                </div>
+                <div class="intro-aside">
+                    <span class="aside-number">01 <span>/</span> 02</span>
+                    <span class="aside-label">Live camera scan or<br>upload lesion photo</span>
+                    <span class="aside-line"></span>
+                </div>
+            </section>
+
+            <!-- Mode Selector Tabs -->
+            <div class="mode-tabs" role="tablist" aria-label="Detection Mode">
+                <button id="tabLiveScan" class="mode-tab is-active" role="tab" aria-selected="true" type="button">
+                    <span class="tab-icon" aria-hidden="true">📡</span>
+                    <span>Live Realtime Scanner</span>
+                </button>
+                <button id="tabUpload" class="mode-tab" role="tab" aria-selected="false" type="button">
+                    <span class="tab-icon" aria-hidden="true">📁</span>
+                    <span>Upload Image File</span>
+                </button>
+            </div>
+
+            <div class="workspace">
+                <!-- PANEL 1: Scanner Viewport -->
+                <section class="upload-panel" aria-labelledby="upload-title">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">STEP 01</p>
+                            <h2 id="upload-title">Scan lesion</h2>
+                        </div>
+                        <span class="panel-index">01</span>
+                    </div>
+
+                    <!-- REALTIME SCANNER CONTAINER -->
+                    <div id="liveScannerSection" class="scanner-container">
+                        <div class="scanner-viewport">
+                            <video id="cameraVideo" class="camera-video" autoplay playsinline muted aria-label="Realtime lesion video stream"></video>
+
+                            <!-- Scanner HUD Overlay -->
+                            <div class="scanner-hud" id="scannerHud">
+                                <div class="hud-reticle" id="hudReticle">
+                                    <div class="corner corner-tl"></div>
+                                    <div class="corner corner-tr"></div>
+                                    <div class="corner corner-bl"></div>
+                                    <div class="corner corner-br"></div>
+                                    <div class="reticle-crosshair"></div>
+                                    <div class="laser-scanner" id="laserScanner"></div>
+                                </div>
+
+                                <div class="hud-live-badge" id="hudLiveBadge">
+                                    <div class="hud-pulse-dot"></div>
+                                    <div class="hud-badge-info">
+                                        <div class="hud-condition" id="hudCondition">ALIGN LESION IN BOX</div>
+                                        <div class="hud-confidence" id="hudConfidence">Scanning...</div>
+                                    </div>
+                                </div>
+
+                                <div class="hud-stability-bar" id="hudStabilityBar">
+                                    <div class="stability-pips">
+                                        <span class="pip pip-1"></span>
+                                        <span class="pip pip-2"></span>
+                                        <span class="pip pip-3"></span>
+                                    </div>
+                                    <span class="stability-label" id="stabilityLabel">Hold still to lock</span>
+                                </div>
+                            </div>
+
+                            <!-- Initial Starter Prompt -->
+                            <div class="scanner-starter" id="scannerStarter">
+                                <span class="scanner-start-icon">📷</span>
+                                <h3 class="scanner-start-title">Realtime Camera Scanner</h3>
+                                <p class="scanner-start-copy">Point your camera at the skin lesion for continuous real-time AI classification.</p>
+                                <button id="startScannerBtn" class="scanner-launch-btn" type="button">
+                                    <span>Launch Realtime Camera</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Live Scanner Controls -->
+                        <div class="scanner-controls-panel" id="scannerControlsPanel" hidden>
+                            <button id="freezeScanBtn" class="freeze-btn" type="button">
+                                <span class="freeze-icon">🎯</span>
+                                <span>Freeze & View Report</span>
+                            </button>
+
+                            <div class="scanner-sub-controls">
+                                <button id="switchCameraBtn" class="scanner-icon-btn" type="button">
+                                    <span>🔄 Flip Camera</span>
+                                </button>
+                                <button id="toggleLiveStreamBtn" class="scanner-icon-btn" type="button">
+                                    <span id="toggleStreamText">⏸ Pause Scan</span>
+                                </button>
+                                <button id="closeScannerBtn" class="scanner-icon-btn is-danger" type="button">
+                                    <span>✖ Stop Camera</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FILE UPLOAD CONTAINER -->
+                    <div id="fileUploadSection" class="upload-section" hidden>
+                        <label class="upload-zone" for="imageInput">
+                            <img id="imagePreview" class="image-preview" alt="Selected skin lesion preview" hidden>
+                            <span class="upload-content" id="uploadContent">
+                                <span class="upload-icon" aria-hidden="true">+</span>
+                                <span class="upload-title" id="uploadTitle">Choose an image</span>
+                                <span class="upload-subtitle" id="uploadSubtitle">or drag and drop it here</span>
+                                <span class="file-types">JPG, PNG or WEBP · up to 10 MB</span>
+                            </span>
+                            <input class="file-input" type="file" id="imageInput" accept="image/*">
+                        </label>
+
+                        <div class="upload-actions">
+                            <p class="privacy-note"><span aria-hidden="true">●</span> Image is used for this analysis only</p>
+                            <button id="analyzeButton" type="button" disabled>
+                                <span>Analyze image</span><span class="button-arrow" aria-hidden="true">&#8594;</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="photo-tips">
+                        <p class="photo-tips-title">💡 Tips for Highest AI Accuracy:</p>
+                        <ul>
+                            <li>Center the mole squarely inside the target reticle</li>
+                            <li>Use bright, diffuse lighting (avoid direct camera flash glare)</li>
+                            <li>Keep surrounding skin free from shadows or hair where possible</li>
+                        </ul>
+                    </div>
+
+                    <p id="loading" role="status" aria-live="polite"><span class="spinner"></span>Analyzing image with AI...</p>
+                    <p id="uploadError" class="upload-error" role="alert" hidden></p>
+                </section>
+
+                <!-- PANEL 2: Diagnostic Assessment -->
+                <section class="result" aria-labelledby="result-title" aria-live="polite">
+                    <div class="panel-heading result-heading">
+                        <div>
+                            <p class="eyebrow">STEP 02</p>
+                            <h2 id="result-title">Diagnostic summary</h2>
+                        </div>
+                        <span class="panel-index">02</span>
+                    </div>
+
+                    <div class="prediction-box" id="predictionBox">
+                        <div class="result-status">
+                            <span class="status-dot"></span>
+                            <span id="resultStatus">AWAITING IMAGE SCAN</span>
+                        </div>
+                        <div class="prediction" id="prediction">Your result will appear here</div>
+                        <div class="confidence" id="confidence">Confidence: -</div>
+
+                        <div id="inconclusiveAlert" class="inconclusive-banner" hidden>
+                            <span class="inconclusive-icon" aria-hidden="true">⚠️</span>
+                            <div>
+                                <strong>Low Confidence Notice</strong>
+                                <p id="inconclusiveText">The AI model detected low certainty (<45%). The image may be blurry, poorly lit, or not a recognized skin lesion.</p>
+                            </div>
+                        </div>
+
+                        <div id="differentialContainer" class="differential-container" hidden>
+                            <h4 class="differential-title">Differential Probabilities (Top-3):</h4>
+                            <div id="differentialList" class="differential-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="result-details">
+                        <section class="section">
+                            <h3>Description</h3>
+                            <p id="description">A screening summary will be available after lesion analysis.</p>
+                        </section>
+                        <div class="detail-columns">
+                            <section class="section">
+                                <h3>Associations & Risk Factors</h3>
+                                <ul id="causes"><li>Not available yet</li></ul>
+                            </section>
+                            <section class="section">
+                                <h3>General Care Instructions</h3>
+                                <ul id="generalCare"><li>Not available yet</li></ul>
+                            </section>
+                        </div>
+                    </div>
+
+                    <div class="warning">
+                        <span class="warning-icon" aria-hidden="true">!</span>
+                        <div>
+                            <h3>When to seek medical attention</h3>
+                            <p id="medicalAttention">Consult a qualified healthcare professional or dermatologist about any concerning, changing, or persistent skin lesion.</p>
+                        </div>
+                    </div>
+
+                    <!-- Report Actions Bar -->
+                    <div class="report-actions" id="reportActions" hidden>
+                        <button type="button" id="saveHistoryBtn" class="save-history-btn">
+                            <span>💾 Save to My Scan History</span>
+                        </button>
+                        <button type="button" id="printReportButton" class="print-button">
+                            <span>📄 Print / Save Summary (PDF)</span>
+                        </button>
+                    </div>
+                    <p id="historySavedNote" class="history-saved-note" hidden>✓ Scan saved to your History!</p>
+                </section>
+            </div>
+
+            <footer class="page-footer">
+                <p><strong>For educational use only, not clinical diagnosis.</strong> AI predictions should never replace professional medical examination by a certified dermatologist.</p>
+                <span>DERMALENS <span aria-hidden="true">·</span> REALTIME AI SCANNER</span>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Scanner Script with History Logger -->
+    <script>
+        function getApiUrl() {
+            if (window.location.protocol === "file:" || ["5500", "5501", "3000", "5173"].includes(window.location.port)) {
+                return "http://127.0.0.1:8000/predict";
+            }
+            return "/predict";
+        }
+
+        const tabLiveScan = document.getElementById("tabLiveScan");
+        const tabUpload = document.getElementById("tabUpload");
+        const liveScannerSection = document.getElementById("liveScannerSection");
+        const fileUploadSection = document.getElementById("fileUploadSection");
+        
+        const cameraVideo = document.getElementById("cameraVideo");
+        const scannerHud = document.getElementById("scannerHud");
+        const scannerStarter = document.getElementById("scannerStarter");
+        const startScannerBtn = document.getElementById("startScannerBtn");
+        const scannerControlsPanel = document.getElementById("scannerControlsPanel");
+        const freezeScanBtn = document.getElementById("freezeScanBtn");
+        const switchCameraBtn = document.getElementById("switchCameraBtn");
+        const toggleLiveStreamBtn = document.getElementById("toggleLiveStreamBtn");
+        const toggleStreamText = document.getElementById("toggleStreamText");
+        const closeScannerBtn = document.getElementById("closeScannerBtn");
+        
+        const hudCondition = document.getElementById("hudCondition");
+        const hudConfidence = document.getElementById("hudConfidence");
+        const hudLiveBadge = document.getElementById("hudLiveBadge");
+        const hudStabilityBar = document.getElementById("hudStabilityBar");
+        const stabilityLabel = document.getElementById("stabilityLabel");
+        
+        const imageInput = document.getElementById("imageInput");
+        const analyzeButton = document.getElementById("analyzeButton");
+        const loading = document.getElementById("loading");
+        const imagePreview = document.getElementById("imagePreview");
+        const uploadTitle = document.getElementById("uploadTitle");
+        const uploadSubtitle = document.getElementById("uploadSubtitle");
+        const uploadError = document.getElementById("uploadError");
+        const uploadZone = document.querySelector(".upload-zone");
+        const resultStatus = document.getElementById("resultStatus");
+        const printReportButton = document.getElementById("printReportButton");
+        const saveHistoryBtn = document.getElementById("saveHistoryBtn");
+        const historySavedNote = document.getElementById("historySavedNote");
+        const installAppBtn = document.getElementById("installAppBtn");
+
+        let cameraStream = null;
+        let previewUrl = null;
+        let currentThumbnailData = null;
+        let isLiveScanningActive = false;
+        let scanInterval = null;
+        let isDetectingFrame = false;
+        let currentFacingMode = "environment";
+        let consecutiveMatches = 0;
+        let lastPredictedLabel = null;
+        let latestDetectionData = null;
+
+        tabLiveScan.addEventListener("click", () => {
+            tabLiveScan.classList.add("is-active");
+            tabLiveScan.setAttribute("aria-selected", "true");
+            tabUpload.classList.remove("is-active");
+            tabUpload.setAttribute("aria-selected", "false");
+            liveScannerSection.hidden = false;
+            fileUploadSection.hidden = true;
+        });
+
+        tabUpload.addEventListener("click", () => {
+            tabUpload.classList.add("is-active");
+            tabUpload.setAttribute("aria-selected", "true");
+            tabLiveScan.classList.remove("is-active");
+            tabLiveScan.setAttribute("aria-selected", "false");
+            fileUploadSection.hidden = false;
+            liveScannerSection.hidden = true;
+            stopRealtimeScanner();
+        });
+
+        async function startRealtimeCamera() {
+            uploadError.hidden = true;
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                uploadError.textContent = "Camera access unavailable. Please use HTTPS or upload an image file.";
+                uploadError.hidden = false;
+                return;
+            }
+
+            try {
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(t => t.stop());
+                }
+
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: { ideal: currentFacingMode },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                });
+
+                cameraVideo.srcObject = cameraStream;
+                await cameraVideo.play();
+
+                scannerStarter.hidden = true;
+                scannerControlsPanel.hidden = false;
+                scannerHud.classList.add("is-active");
+                isLiveScanningActive = true;
+                toggleStreamText.textContent = "⏸ Pause Scan";
+
+                startScanningLoop();
+            } catch (err) {
+                console.error("Camera error:", err);
+                uploadError.textContent = "Unable to start camera. Please verify permissions in browser settings.";
+                uploadError.hidden = false;
+                stopRealtimeScanner();
+            }
+        }
+
+        function stopRealtimeScanner() {
+            if (scanInterval) {
+                clearInterval(scanInterval);
+                scanInterval = null;
+            }
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(t => t.stop());
+                cameraStream = null;
+            }
+            cameraVideo.srcObject = null;
+            scannerStarter.hidden = false;
+            scannerControlsPanel.hidden = true;
+            scannerHud.classList.remove("is-active");
+            isLiveScanningActive = false;
+            consecutiveMatches = 0;
+            updateStabilityMeter(0);
+        }
+
+        function startScanningLoop() {
+            if (scanInterval) clearInterval(scanInterval);
+
+            scanInterval = setInterval(async () => {
+                if (!isLiveScanningActive || isDetectingFrame || !cameraVideo.videoWidth) return;
+
+                isDetectingFrame = true;
+                try {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = 224;
+                    canvas.height = 224;
+                    const ctx = canvas.getContext("2d");
+
+                    const minDim = Math.min(cameraVideo.videoWidth, cameraVideo.videoHeight);
+                    const sx = (cameraVideo.videoWidth - minDim) / 2;
+                    const sy = (cameraVideo.videoHeight - minDim) / 2;
+                    ctx.drawImage(cameraVideo, sx, sy, minDim, minDim, 0, 0, 224, 224);
+
+                    const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.75));
+                    if (!blob) return;
+
+                    const formData = new FormData();
+                    formData.append("file", blob, "live-frame.jpg");
+
+                    const res = await fetch(getApiUrl(), { method: "POST", body: formData });
+                    if (res.ok) {
+                        const data = await res.json();
+                        latestDetectionData = data;
+                        renderLiveHUD(data);
+                    }
+                } catch (e) {
+                } finally {
+                    isDetectingFrame = false;
+                }
+            }, 750);
+        }
+
+        function renderLiveHUD(data) {
+            if (!isLiveScanningActive) return;
+
+            if (data.is_inconclusive) {
+                hudCondition.textContent = "ALIGNING LESION...";
+                hudConfidence.textContent = "Low certainty (<45%)";
+                hudLiveBadge.className = "hud-live-badge is-inconclusive";
+                consecutiveMatches = 0;
+                updateStabilityMeter(0);
+                return;
+            }
+
+            hudCondition.textContent = data.prediction;
+            hudConfidence.textContent = `${data.confidence}% confidence`;
+
+            if (["Melanoma, NOS", "Basal cell carcinoma", "Squamous cell carcinoma, NOS"].includes(data.prediction)) {
+                hudLiveBadge.className = "hud-live-badge is-urgent";
+            } else if (data.prediction === "Solar or actinic keratosis") {
+                hudLiveBadge.className = "hud-live-badge is-warning";
+            } else {
+                hudLiveBadge.className = "hud-live-badge is-benign";
+            }
+
+            if (data.prediction === lastPredictedLabel && data.confidence > 55) {
+                consecutiveMatches = Math.min(3, consecutiveMatches + 1);
+            } else {
+                lastPredictedLabel = data.prediction;
+                consecutiveMatches = 1;
+            }
+            updateStabilityMeter(consecutiveMatches);
+
+            if (consecutiveMatches >= 3) {
+                stabilityLabel.textContent = "TARGET LOCKED (STABLE)";
+                hudStabilityBar.classList.add("is-locked");
+                if (navigator.vibrate) {
+                    try { navigator.vibrate(50); } catch (e) {}
+                }
+            } else {
+                stabilityLabel.textContent = "Hold steady to lock";
+                hudStabilityBar.classList.remove("is-locked");
+            }
+        }
+
+        function updateStabilityMeter(level) {
+            const pips = hudStabilityBar.querySelectorAll(".pip");
+            pips.forEach((pip, index) => {
+                if (index < level) {
+                    pip.classList.add("is-filled");
+                } else {
+                    pip.classList.remove("is-filled");
+                }
+            });
+        }
+
+        async function freezeAndDisplayReport() {
+            if (!cameraVideo.videoWidth) return;
+
+            const canvas = document.createElement("canvas");
+            canvas.width = cameraVideo.videoWidth;
+            canvas.height = cameraVideo.videoHeight;
+            canvas.getContext("2d").drawImage(cameraVideo, 0, 0);
+
+            currentThumbnailData = canvas.toDataURL("image/jpeg", 0.6);
+
+            const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.9));
+            if (!blob) return;
+
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            previewUrl = URL.createObjectURL(blob);
+            imagePreview.src = previewUrl;
+            imagePreview.hidden = false;
+
+            if (latestDetectionData && consecutiveMatches >= 2) {
+                renderFullReport(latestDetectionData);
+            } else {
+                const file = new File([blob], "scanner-capture.jpg", { type: "image/jpeg" });
+                await executeAnalysis(file);
+            }
+
+            document.getElementById("predictionBox").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        startScannerBtn.addEventListener("click", startRealtimeCamera);
+        closeScannerBtn.addEventListener("click", stopRealtimeScanner);
+
+        switchCameraBtn.addEventListener("click", async () => {
+            currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+            await startRealtimeCamera();
+        });
+
+        toggleLiveStreamBtn.addEventListener("click", () => {
+            isLiveScanningActive = !isLiveScanningActive;
+            if (isLiveScanningActive) {
+                toggleStreamText.textContent = "⏸ Pause Scan";
+                scannerHud.classList.add("is-active");
+            } else {
+                toggleStreamText.textContent = "▶ Resume Scan";
+                scannerHud.classList.remove("is-active");
+                hudCondition.textContent = "SCAN PAUSED";
+                hudConfidence.textContent = "Tap resume to continue";
+            }
+        });
+
+        freezeScanBtn.addEventListener("click", freezeAndDisplayReport);
+        window.addEventListener("pagehide", stopRealtimeScanner);
+
+        imageInput.addEventListener("change", function () {
+            const file = imageInput.files[0];
+            uploadError.hidden = true;
+
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+
+            if (!file) {
+                imagePreview.hidden = true;
+                imagePreview.removeAttribute("src");
+                uploadTitle.textContent = "Choose an image";
+                uploadSubtitle.textContent = "or drag and drop it here";
+                analyzeButton.disabled = true;
+                return;
+            }
+
+            if (!file.type.startsWith("image/") || file.size > 10 * 1024 * 1024) {
+                imageInput.value = "";
+                imagePreview.hidden = true;
+                imagePreview.removeAttribute("src");
+                uploadError.textContent = file.size > 10 * 1024 * 1024
+                    ? "File size exceeds 10 MB limit."
+                    : "Please select an image file.";
+                uploadError.hidden = false;
+                analyzeButton.disabled = true;
+                return;
+            }
+
+            previewUrl = URL.createObjectURL(file);
+            imagePreview.src = previewUrl;
+            imagePreview.hidden = false;
+            uploadTitle.textContent = file.name;
+            uploadSubtitle.textContent = "Ready for screening";
+            analyzeButton.disabled = false;
+
+            // Generate thumbnail for history storage
+            const reader = new FileReader();
+            reader.onload = e => currentThumbnailData = e.target.result;
+            reader.readAsDataURL(file);
+        });
+
+        uploadZone.addEventListener("dragover", e => { e.preventDefault(); uploadZone.classList.add("is-dragging"); });
+        uploadZone.addEventListener("dragleave", e => { if (!uploadZone.contains(e.relatedTarget)) uploadZone.classList.remove("is-dragging"); });
+        uploadZone.addEventListener("drop", e => {
+            e.preventDefault();
+            uploadZone.classList.remove("is-dragging");
+            if (e.dataTransfer.files.length) {
+                const transfer = new DataTransfer();
+                transfer.items.add(e.dataTransfer.files[0]);
+                imageInput.files = transfer.files;
+                imageInput.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+        });
+
+        analyzeButton.addEventListener("click", async () => {
+            const file = imageInput.files[0];
+            if (file) await executeAnalysis(file);
+        });
+
+        async function executeAnalysis(file) {
+            loading.style.display = "block";
+            resultStatus.textContent = "ANALYSIS IN PROGRESS";
+            analyzeButton.disabled = true;
+            uploadError.hidden = true;
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch(getApiUrl(), { method: "POST", body: formData });
+                if (!response.ok) {
+                    let errDetail = "Server returned an error.";
+                    try {
+                        const errBody = await response.json();
+                        if (errBody && errBody.detail) errDetail = errBody.detail;
+                    } catch (e) {}
+                    throw new Error(errDetail);
+                }
+
+                const data = await response.json();
+                latestDetectionData = data;
+                renderFullReport(data);
+            } catch (error) {
+                console.error(error);
+                resultStatus.textContent = "ANALYSIS UNAVAILABLE";
+                uploadError.textContent = error.message || "Failed to analyze image.";
+                uploadError.hidden = false;
+            } finally {
+                loading.style.display = "none";
+                analyzeButton.disabled = false;
+            }
+        }
+
+        function renderFullReport(data) {
+            document.getElementById("prediction").textContent = data.prediction;
+            document.getElementById("confidence").textContent = "Confidence: " + data.confidence + "%";
+
+            const inconclusiveAlert = document.getElementById("inconclusiveAlert");
+            const inconclusiveText = document.getElementById("inconclusiveText");
+            if (data.is_inconclusive) {
+                inconclusiveText.textContent = data.inconclusive_notice || "Low confidence. Please see a dermatologist.";
+                inconclusiveAlert.hidden = false;
+                resultStatus.textContent = "INCONCLUSIVE / LOW CONFIDENCE";
+            } else {
+                inconclusiveAlert.hidden = true;
+                resultStatus.textContent = "SCREENING COMPLETE";
+            }
+
+            const differentialContainer = document.getElementById("differentialContainer");
+            const differentialList = document.getElementById("differentialList");
+            differentialList.innerHTML = "";
+
+            if (data.top_predictions && data.top_predictions.length > 0) {
+                data.top_predictions.forEach(item => {
+                    const row = document.createElement("div");
+                    row.className = "diff-row";
+                    row.innerHTML =
+                        '<div class="diff-header">' +
+                            '<span class="diff-name">' + item.disease + '</span>' +
+                            '<span class="diff-pct">' + item.confidence + '%</span>' +
+                        '</div>' +
+                        '<div class="diff-bar-track">' +
+                            '<div class="diff-bar-fill" style="width: ' + Math.min(100, Math.max(4, item.confidence)) + '%"></div>' +
+                        '</div>';
+                    differentialList.appendChild(row);
+                });
+                differentialContainer.hidden = false;
+            } else {
+                differentialContainer.hidden = true;
+            }
+
+            document.getElementById("description").textContent = data.description;
+
+            const causesList = document.getElementById("causes");
+            causesList.innerHTML = "";
+            data.causes.forEach(cause => {
+                const li = document.createElement("li");
+                li.textContent = cause;
+                causesList.appendChild(li);
+            });
+
+            const careList = document.getElementById("generalCare");
+            careList.innerHTML = "";
+            data.general_care.forEach(care => {
+                const li = document.createElement("li");
+                li.textContent = care;
+                careList.appendChild(li);
+            });
+
+            document.getElementById("medicalAttention").textContent = data.medical_attention;
+
+            const reportActions = document.getElementById("reportActions");
+            if (reportActions) reportActions.hidden = false;
+            if (historySavedNote) historySavedNote.hidden = true;
+        }
+
+        // Save Scan to History (localStorage)
+        if (saveHistoryBtn) {
+            saveHistoryBtn.addEventListener("click", () => {
+                if (!latestDetectionData) return;
+
+                const scanRecord = {
+                    id: 'scan_' + Date.now(),
+                    timestamp: new Date().toISOString(),
+                    prediction: latestDetectionData.prediction,
+                    confidence: latestDetectionData.confidence,
+                    is_inconclusive: latestDetectionData.is_inconclusive,
+                    top_predictions: latestDetectionData.top_predictions || [],
+                    description: latestDetectionData.description || '',
+                    thumbnail: currentThumbnailData || ''
+                };
+
+                try {
+                    let history = JSON.parse(localStorage.getItem("dermalens_scan_history") || "[]");
+                    history.unshift(scanRecord); // prepend newest
+                    if (history.length > 50) history = history.slice(0, 50); // keep up to 50
+                    localStorage.setItem("dermalens_scan_history", JSON.stringify(history));
+
+                    historySavedNote.hidden = false;
+                    saveHistoryBtn.disabled = true;
+                    saveHistoryBtn.textContent = "✓ Saved to History";
+                } catch (e) {
+                    alert("Could not save to browser storage. You may be in incognito mode or out of storage space.");
+                }
+            });
+        }
+
+        if (printReportButton) {
+            printReportButton.addEventListener("click", () => window.print());
+        }
+
+        // PWA
+        let deferredPrompt = null;
+        window.addEventListener("beforeinstallprompt", e => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installAppBtn) installAppBtn.hidden = false;
+        });
+        if (installAppBtn) {
+            installAppBtn.addEventListener("click", async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt = null;
+                }
+            });
+        }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>
