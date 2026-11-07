@@ -15,7 +15,8 @@ __pycache__/
 .ruff_cache/
 
 # Datasets and trained weights
-data/
+data/*
+!data/custom_diseases.json
 *.pth
 !skin_disease_model.pth
 *.pt

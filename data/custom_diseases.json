@@ -1,0 +1,94 @@
+{
+  "diseases": [
+    {
+      "name": "Eczema (Atopic Dermatitis)",
+      "category": "inflammatory",
+      "risk": "Low (Chronic / Inflammatory)",
+      "color": "#3b82f6",
+      "description": "Atopic dermatitis is a chronic inflammatory skin condition characterized by dry, itchy, and inflamed patches of skin.",
+      "causes": [
+        "Genetics and skin barrier dysfunction (filaggrin deficiency)",
+        "Environmental allergens and irritants (soaps, detergents, wool)",
+        "Stress and dry weather conditions"
+      ],
+      "general_care": [
+        "Apply thick ceramide moisturizers within 3 minutes after lukewarm bathing",
+        "Use fragrance-free, gentle hypoallergenic soap substitutes",
+        "Avoid scratching by keeping fingernails trimmed and using cool compresses"
+      ],
+      "medical_attention": "Seek medical attention if lesions become oozing, crusting with yellow pus (signs of secondary bacterial infection), or if severe flare-ups do not respond to OTC moisturizers.",
+      "is_custom": true,
+      "products": [
+        {
+          "name": "CeraVe Moisturizing Cream with Ceramides & Hyaluronic Acid",
+          "category": "Barrier Repair",
+          "reason": "Replenishes essential skin ceramides (1, 3, 6-II) to restore compromised moisture barriers.",
+          "badge": "National Eczema Assoc.",
+          "price_range": "$15 - $22",
+          "redirect_url": "https://www.amazon.com/s?k=cerave+moisturizing+cream+eczema"
+        },
+        {
+          "name": "Aveeno Colloidal Oatmeal Eczema Therapy Relief Balm",
+          "category": "Soothing Relief",
+          "reason": "Clinically proven colloidal oatmeal soothes severe itchiness and redness within minutes.",
+          "badge": "Anti-Itch",
+          "price_range": "$14 - $19",
+          "redirect_url": "https://www.amazon.com/s?k=colloidal+oatmeal+eczema+cream"
+        },
+        {
+          "name": "Hydrocortisone 1% Maximum Strength Anti-Itch Ointment",
+          "category": "OTC Treatment",
+          "reason": "Provides fast temporary relief from inflammatory itch flares during acute flare-ups.",
+          "badge": "Fast Relief",
+          "price_range": "$8 - $12",
+          "redirect_url": "https://www.amazon.com/s?k=hydrocortisone+1+percent+ointment"
+        }
+      ]
+    },
+    {
+      "name": "Acne Vulgaris",
+      "category": "inflammatory",
+      "risk": "Low (Manageable)",
+      "color": "#8b5cf6",
+      "description": "A very common skin condition that occurs when hair follicles become plugged with oil, dead skin cells, and Cutibacterium acnes bacteria.",
+      "causes": [
+        "Excess sebum (oil) production driven by androgens",
+        "Abnormal follicular keratinization plugging pores",
+        "Cutibacterium acnes bacterial proliferation and localized inflammation"
+      ],
+      "general_care": [
+        "Wash skin gently twice daily with a mild, non-comedogenic foaming cleanser",
+        "Avoid picking, squeezing, or popping pimples to prevent scarring and hyperpigmentation",
+        "Always use oil-free (non-comedogenic) moisturizers and broad-spectrum sunscreens"
+      ],
+      "medical_attention": "Consult a dermatologist if you experience deep, painful cystic or nodular acne, or if OTC treatments fail after 8-12 weeks.",
+      "is_custom": true,
+      "products": [
+        {
+          "name": "Paula's Choice 2% BHA Salicylic Acid Liquid Exfoliant",
+          "category": "Pore Exfoliant",
+          "reason": "Penetrates deep into lipid-rich pores to unclog trapped dead skin cells and sebum.",
+          "badge": "Best Seller",
+          "price_range": "$13 - $35",
+          "redirect_url": "https://www.amazon.com/s?k=paulas+choice+salicylic+acid"
+        },
+        {
+          "name": "PanOxyl 4% Benzoyl Peroxide Daily Antimicrobial Wash",
+          "category": "Antimicrobial Wash",
+          "reason": "Rapidly clears acne-causing bacteria and prevents new inflammatory papules.",
+          "badge": "Derm Recommended",
+          "price_range": "$10 - $15",
+          "redirect_url": "https://www.amazon.com/s?k=panoxyl+4+percent+wash"
+        },
+        {
+          "name": "Hero Cosmetics Mighty Patch Hydrocolloid Blemish Dots",
+          "category": "Targeted Care",
+          "reason": "Absorbs pus and protects active blemishes from picking and environmental dirt.",
+          "badge": "Pimple Patch",
+          "price_range": "$12 - $18",
+          "redirect_url": "https://www.amazon.com/s?k=mighty+patch+original"
+        }
+      ]
+    }
+  ]
+}

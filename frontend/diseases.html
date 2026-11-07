@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 
 <body>
@@ -38,6 +38,10 @@
             </nav>
 
             <div class="topbar-actions">
+                <button id="topbarAddBtn" class="add-category-btn" type="button">
+                    <span aria-hidden="true">➕</span>
+                    <span>Add Category</span>
+                </button>
                 <a href="/scan" class="launch-scan-btn">
                     <span>🔬 Open Scanner</span>
                 </a>
@@ -49,16 +53,16 @@
                 <div>
                     <p class="eyebrow">DERMATOLOGY KNOWLEDGE BASE</p>
                     <h1 id="page-title">Skin condition<br><em>encyclopedia.</em></h1>
-                    <p class="intro-copy">Explore clinical facts, dermoscopy patterns, causes, and care guidelines for all 7 skin lesions classified by the Dermalens AI model.</p>
+                    <p class="intro-copy">Explore clinical facts, dermoscopy patterns, causes, and care guidelines with targeted e-commerce product recommendations.</p>
                 </div>
                 <div class="intro-aside">
-                    <span class="aside-number">07 <span>/</span> 07</span>
-                    <span class="aside-label">Classified lesions &<br>dermoscopy patterns</span>
+                    <span class="aside-number" id="catalogCountDisplay">-- <span>/</span> --</span>
+                    <span class="aside-label">Classified conditions &<br>custom categories</span>
                     <span class="aside-line"></span>
                 </div>
             </section>
 
-            <!-- Search & Category Filters -->
+            <!-- Search & Category Filters & Add Category Action -->
             <div class="encyclopedia-toolbar">
                 <div class="search-box">
                     <span class="search-icon" aria-hidden="true">🔍</span>
@@ -66,11 +70,17 @@
                 </div>
 
                 <div class="category-filters" role="tablist" aria-label="Condition categories">
-                    <button class="filter-pill is-active" data-category="all" type="button">All Conditions (7)</button>
-                    <button class="filter-pill" data-category="malignant" type="button">Malignant / High Risk (3)</button>
-                    <button class="filter-pill" data-category="precancerous" type="button">Pre-cancerous (1)</button>
-                    <button class="filter-pill" data-category="benign" type="button">Benign / Non-cancerous (3)</button>
+                    <button class="filter-pill is-active" data-category="all" type="button">All Conditions (<span id="countAll">0</span>)</button>
+                    <button class="filter-pill" data-category="malignant" type="button">Malignant (<span id="countMalignant">0</span>)</button>
+                    <button class="filter-pill" data-category="precancerous" type="button">Pre-cancerous (<span id="countPrecancerous">0</span>)</button>
+                    <button class="filter-pill" data-category="benign" type="button">Benign (<span id="countBenign">0</span>)</button>
+                    <button class="filter-pill" data-category="inflammatory" type="button">Inflammatory (<span id="countInflammatory">0</span>)</button>
                 </div>
+
+                <button id="openAddCategoryModalBtn" class="add-category-btn" type="button">
+                    <span aria-hidden="true">➕</span>
+                    <span>Add Disease Category</span>
+                </button>
             </div>
 
             <!-- Dynamic Diseases Grid -->
@@ -86,10 +96,129 @@
         </main>
     </div>
 
+    <!-- ADD DISEASE CATEGORY MODAL (FRONTEND PRIVILEGE) -->
+    <div id="addCategoryModal" class="modal-backdrop" hidden>
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <span class="eyebrow">ADMIN PRIVILEGE</span>
+                    <h3 class="modal-title">Add New Disease Category</h3>
+                </div>
+                <button id="closeCategoryModalBtn" class="modal-close-btn" type="button" aria-label="Close dialog">&times;</button>
+            </div>
+
+            <form id="addCategoryForm" class="category-form">
+                <div class="form-row">
+                    <div class="form-group flex-2">
+                        <label for="catName">Condition / Disease Name *</label>
+                        <input type="text" id="catName" required placeholder="e.g. Psoriasis, Eczema, Tinea Versicolor">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="catGroup">Classification Group *</label>
+                        <select id="catGroup" required>
+                            <option value="benign">Benign / Non-cancerous</option>
+                            <option value="inflammatory">Inflammatory</option>
+                            <option value="precancerous">Pre-cancerous</option>
+                            <option value="malignant">Malignant / High Risk</option>
+                            <option value="infectious">Infectious / Fungal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-2">
+                        <label for="catRisk">Clinical Risk Level</label>
+                        <input type="text" id="catRisk" placeholder="e.g. Low (Manageable), Moderate, High Risk" value="Low (Manageable)">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="catColor">Badge Color</label>
+                        <input type="color" id="catColor" value="#3b82f6">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="catDesc">Detailed Description *</label>
+                    <textarea id="catDesc" rows="3" required placeholder="Provide clinical overview and common characteristics..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="catCauses">Causes & Risk Factors (One per line or comma-separated)</label>
+                    <textarea id="catCauses" rows="2" placeholder="e.g. Genetics&#10;Environmental allergens&#10;Immune dysregulation"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="catCare">General Care Guidelines (One per line or comma-separated)</label>
+                    <textarea id="catCare" rows="2" placeholder="e.g. Keep skin hydrated with ceramide lotion&#10;Avoid hot showers&#10;Use mild fragrance-free cleansers"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="catAttention">When to Seek Medical Attention</label>
+                    <textarea id="catAttention" rows="2" placeholder="e.g. Consult a doctor if skin exhibits pus, intense pain, or fever."></textarea>
+                </div>
+
+                <!-- E-Commerce Product Suggestions for this category -->
+                <div class="form-section-title">
+                    <h4>Recommended E-Commerce Products (Redirect to Store)</h4>
+                    <p>Add products that will suggest direct purchases to users for this condition.</p>
+                </div>
+
+                <div id="productInputsContainer" class="product-inputs-container">
+                    <div class="product-input-card">
+                        <div class="form-row">
+                            <div class="form-group flex-2">
+                                <label>Product Name</label>
+                                <input type="text" class="prod-name" placeholder="e.g. CeraVe Moisturizing Cream">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>Category Tag</label>
+                                <input type="text" class="prod-tag" placeholder="e.g. Barrier Repair" value="Barrier Repair">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-2">
+                                <label>E-Commerce Redirect URL</label>
+                                <input type="url" class="prod-url" placeholder="https://www.amazon.com/dp/... or store URL">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>Price Range</label>
+                                <input type="text" class="prod-price" placeholder="e.g. $15 - $25" value="$15 - $25">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Why Recommended</label>
+                            <input type="text" class="prod-reason" placeholder="e.g. Replenishes essential skin ceramides and prevents moisture loss">
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="addAnotherProductBtn" class="add-sub-btn">+ Add Another Product</button>
+
+                <div class="modal-footer">
+                    <button type="button" id="cancelCategoryBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" id="saveCategoryBtn" class="btn-primary">
+                        <span>Save Category</span>
+                    </button>
+                </div>
+                <p id="formStatusMsg" class="form-status-msg" hidden></p>
+            </form>
+        </div>
+    </div>
+
     <script>
         const diseaseGrid = document.getElementById("diseaseGrid");
         const diseaseSearch = document.getElementById("diseaseSearch");
         const filterPills = document.querySelectorAll(".filter-pill");
+        const catalogCountDisplay = document.getElementById("catalogCountDisplay");
+        
+        // Modal elements
+        const openAddCategoryModalBtn = document.getElementById("openAddCategoryModalBtn");
+        const topbarAddBtn = document.getElementById("topbarAddBtn");
+        const addCategoryModal = document.getElementById("addCategoryModal");
+        const closeCategoryModalBtn = document.getElementById("closeCategoryModalBtn");
+        const cancelCategoryBtn = document.getElementById("cancelCategoryBtn");
+        const addCategoryForm = document.getElementById("addCategoryForm");
+        const formStatusMsg = document.getElementById("formStatusMsg");
+        const addAnotherProductBtn = document.getElementById("addAnotherProductBtn");
+        const productInputsContainer = document.getElementById("productInputsContainer");
 
         let allDiseases = [];
         let currentFilter = "all";
@@ -101,6 +230,7 @@
                 if (res.ok) {
                     const data = await res.json();
                     allDiseases = data.diseases || [];
+                    updateFilterCounts();
                     renderCards();
                 } else {
                     diseaseGrid.innerHTML = `<p class="error-msg">Unable to load encyclopedia data.</p>`;
@@ -110,22 +240,56 @@
             }
         }
 
+        function updateFilterCounts() {
+            const counts = {
+                all: allDiseases.length,
+                malignant: 0,
+                precancerous: 0,
+                benign: 0,
+                inflammatory: 0
+            };
+
+            allDiseases.forEach(d => {
+                const cat = (d.category || '').toLowerCase();
+                if (counts[cat] !== undefined) {
+                    counts[cat]++;
+                } else if (cat.includes('inflamm') || cat.includes('infect')) {
+                    counts.inflammatory++;
+                }
+            });
+
+            document.getElementById("countAll").textContent = counts.all;
+            document.getElementById("countMalignant").textContent = counts.malignant;
+            document.getElementById("countPrecancerous").textContent = counts.precancerous;
+            document.getElementById("countBenign").textContent = counts.benign;
+            document.getElementById("countInflammatory").textContent = counts.inflammatory;
+
+            if (catalogCountDisplay) {
+                catalogCountDisplay.innerHTML = `${String(counts.all).padStart(2, '0')} <span>/</span> ${String(counts.all).padStart(2, '0')}`;
+            }
+        }
+
         function renderCards() {
             const filtered = allDiseases.filter(d => {
-                const matchesCategory = (currentFilter === "all") || (d.category === currentFilter);
+                const cat = (d.category || '').toLowerCase();
+                let matchesCategory = (currentFilter === "all") || (cat === currentFilter);
+                if (currentFilter === "inflammatory" && (cat.includes('inflamm') || cat.includes('infect'))) {
+                    matchesCategory = true;
+                }
                 const q = searchQuery.toLowerCase();
                 const matchesSearch = !q || 
                     d.name.toLowerCase().includes(q) || 
-                    d.description.toLowerCase().includes(q) || 
-                    d.causes.some(c => c.toLowerCase().includes(q));
+                    (d.description || '').toLowerCase().includes(q) || 
+                    (d.causes || []).some(c => c.toLowerCase().includes(q));
                 return matchesCategory && matchesSearch;
             });
 
             if (filtered.length === 0) {
                 diseaseGrid.innerHTML = `
-                    <div class="no-results-card">
+                    <div class="no-results-card" style="grid-column: 1 / -1; padding: 40px; text-align: center; background: white; border: 1px solid var(--line); border-radius: 8px;">
                         <h3>No matching skin conditions found</h3>
-                        <p>Try searching for a different keyword or select "All Conditions".</p>
+                        <p style="color: var(--muted); margin: 8px 0 16px;">Try searching for a different keyword or select "All Conditions".</p>
+                        <button class="add-category-btn" onclick="openModal()" type="button">+ Add This Category</button>
                     </div>
                 `;
                 return;
@@ -133,35 +297,67 @@
 
             diseaseGrid.innerHTML = filtered.map(d => {
                 const categoryClass = 'badge-' + (d.category || 'benign');
+                const products = d.products || [];
+
                 return `
                     <article class="condition-card" data-category="${d.category}">
                         <div class="condition-card-header">
                             <div>
-                                <span class="risk-badge ${categoryClass}">${d.risk || 'Condition'}</span>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                    <span class="risk-badge ${categoryClass}">${d.risk || 'Condition'}</span>
+                                    ${d.is_custom ? '<span class="badge-custom">User Added</span>' : ''}
+                                </div>
                                 <h2 class="condition-title">${d.name}</h2>
                             </div>
+                            ${d.is_custom ? `
+                                <button type="button" class="delete-category-btn" onclick="deleteCategory('${encodeURIComponent(d.name)}')" title="Delete this custom category">
+                                    🗑️ Delete
+                                </button>
+                            ` : ''}
                         </div>
 
-                        <p class="condition-desc">${d.description}</p>
+                        <p class="condition-desc">${d.description || 'Clinical overview not available.'}</p>
 
                         <div class="condition-section">
                             <h4>Key Causes & Risk Factors:</h4>
                             <ul>
-                                ${d.causes.map(c => `<li>${c}</li>`).join('')}
+                                ${(d.causes || []).map(c => `<li>${c}</li>`).join('') || '<li>General dermatological variation</li>'}
                             </ul>
                         </div>
 
                         <div class="condition-section">
                             <h4>Recommended Care:</h4>
                             <ul>
-                                ${d.general_care.map(g => `<li>${g}</li>`).join('')}
+                                ${(d.general_care || []).map(g => `<li>${g}</li>`).join('') || '<li>Maintain skin hygiene and protection</li>'}
                             </ul>
                         </div>
 
                         <div class="condition-warning-box">
                             <strong>⚠️ Medical Attention:</strong>
-                            <p>${d.medical_attention}</p>
+                            <p>${d.medical_attention || 'Consult a dermatologist for evaluation.'}</p>
                         </div>
+
+                        ${products.length > 0 ? `
+                            <div class="condition-products-box">
+                                <h4>🛍️ Recommended Care Products:</h4>
+                                <div class="condition-products-list">
+                                    ${products.map(p => `
+                                        <div class="condition-product-row">
+                                            <div>
+                                                <div class="condition-product-title">${p.name}</div>
+                                                <span style="font-size: 11px; color: var(--muted);">${p.category || 'Skincare'} · ${p.price_range || '$15 - $25'}</span>
+                                            </div>
+                                            <a href="${p.redirect_url || ('https://www.amazon.com/s?k=' + encodeURIComponent(p.name))}" 
+                                               target="_blank" 
+                                               rel="noopener noreferrer" 
+                                               class="condition-product-link">
+                                                <span>Shop ↗</span>
+                                            </a>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
 
                         <div class="condition-card-actions">
                             <a href="/scan" class="card-scan-btn">
@@ -173,6 +369,25 @@
             }).join('');
         }
 
+        // Delete custom category
+        window.deleteCategory = async function(encodedName) {
+            const name = decodeURIComponent(encodedName);
+            if (!confirm(`Are you sure you want to delete the category "${name}"?`)) return;
+
+            try {
+                const res = await fetch(`/api/diseases/${encodeURIComponent(name)}`, { method: "DELETE" });
+                if (res.ok) {
+                    await fetchDiseases();
+                } else {
+                    const err = await res.json();
+                    alert(err.detail || "Could not delete category.");
+                }
+            } catch (e) {
+                alert("Failed to delete category due to connection error.");
+            }
+        };
+
+        // Filter pills listener
         filterPills.forEach(pill => {
             pill.addEventListener("click", () => {
                 filterPills.forEach(p => p.classList.remove("is-active"));
@@ -186,6 +401,144 @@
             searchQuery = e.target.value.trim();
             renderCards();
         });
+
+        // Modal Controls
+        function openModal() {
+            addCategoryModal.hidden = false;
+            formStatusMsg.hidden = true;
+            document.getElementById("catName").focus();
+        }
+
+        function closeModal() {
+            addCategoryModal.hidden = true;
+            addCategoryForm.reset();
+            formStatusMsg.hidden = true;
+        }
+
+        window.openModal = openModal;
+        if (openAddCategoryModalBtn) openAddCategoryModalBtn.addEventListener("click", openModal);
+        if (topbarAddBtn) topbarAddBtn.addEventListener("click", openModal);
+        if (closeCategoryModalBtn) closeCategoryModalBtn.addEventListener("click", closeModal);
+        if (cancelCategoryBtn) cancelCategoryBtn.addEventListener("click", closeModal);
+
+        // Add extra product field
+        if (addAnotherProductBtn) {
+            addAnotherProductBtn.addEventListener("click", () => {
+                const count = productInputsContainer.querySelectorAll(".product-input-card").length;
+                if (count >= 5) {
+                    alert("Maximum of 5 products per category reached.");
+                    return;
+                }
+                const card = document.createElement("div");
+                card.className = "product-input-card";
+                card.innerHTML = `
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label>Product Name</label>
+                            <input type="text" class="prod-name" placeholder="e.g. Aveeno Eczema Therapy">
+                        </div>
+                        <div class="form-group flex-1">
+                            <label>Category Tag</label>
+                            <input type="text" class="prod-tag" placeholder="e.g. Soothing Relief" value="Soothing Relief">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label>E-Commerce Redirect URL</label>
+                            <input type="url" class="prod-url" placeholder="https://www.amazon.com/dp/... or store URL">
+                        </div>
+                        <div class="form-group flex-1">
+                            <label>Price Range</label>
+                            <input type="text" class="prod-price" placeholder="e.g. $12 - $18" value="$12 - $18">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Why Recommended</label>
+                        <input type="text" class="prod-reason" placeholder="e.g. Fast relief from burning and itching sensations">
+                    </div>
+                `;
+                productInputsContainer.appendChild(card);
+            });
+        }
+
+        // Form Submit Handler
+        addCategoryForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            formStatusMsg.hidden = false;
+            formStatusMsg.className = "form-status-msg";
+            formStatusMsg.textContent = "Saving category...";
+
+            const name = document.getElementById("catName").value.trim();
+            const category = document.getElementById("catGroup").value;
+            const risk = document.getElementById("catRisk").value.trim() || "Moderate";
+            const color = document.getElementById("catColor").value;
+            const description = document.getElementById("catDesc").value.trim();
+            const causesRaw = document.getElementById("catCauses").value;
+            const careRaw = document.getElementById("catCare").value;
+            const attention = document.getElementById("catAttention").value.trim();
+
+            const causes = causesRaw.split(/[\n,]/).map(c => c.trim()).filter(Boolean);
+            const general_care = careRaw.split(/[\n,]/).map(c => c.trim()).filter(Boolean);
+
+            // Extract products
+            const products = [];
+            const productCards = productInputsContainer.querySelectorAll(".product-input-card");
+            productCards.forEach(card => {
+                const prodName = card.querySelector(".prod-name").value.trim();
+                if (prodName) {
+                    products.push({
+                        name: prodName,
+                        category: card.querySelector(".prod-tag").value.trim() || "Skincare",
+                        redirect_url: card.querySelector(".prod-url").value.trim(),
+                        price_range: card.querySelector(".prod-price").value.trim() || "$15 - $25",
+                        reason: card.querySelector(".prod-reason").value.trim() || "Clinically suggested skincare support.",
+                        badge: "Recommended"
+                    });
+                }
+            });
+
+            const payload = {
+                name,
+                category,
+                risk,
+                color,
+                description,
+                causes,
+                general_care,
+                medical_attention: attention || "Consult a dermatologist for a professional clinical examination.",
+                products
+            };
+
+            try {
+                const res = await fetch("/api/diseases", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    formStatusMsg.className = "form-status-msg is-success";
+                    formStatusMsg.textContent = `✓ "${name}" added successfully!`;
+                    setTimeout(async () => {
+                        closeModal();
+                        await fetchDiseases();
+                    }, 800);
+                } else {
+                    const err = await res.json();
+                    formStatusMsg.className = "form-status-msg is-error";
+                    formStatusMsg.textContent = err.detail || "Error saving category.";
+                }
+            } catch (err) {
+                formStatusMsg.className = "form-status-msg is-error";
+                formStatusMsg.textContent = "Network error. Please try again.";
+            }
+        });
+
+        // Check URL parameter ?action=add
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("action") === "add") {
+            setTimeout(openModal, 200);
+        }
 
         fetchDiseases();
     </script>
