@@ -19,8 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend ./backend
 COPY src ./src
 COPY frontend ./frontend
-COPY data ./data
 COPY skin_disease_model.pth ./skin_disease_model.pth
+RUN mkdir -p data
 
 EXPOSE 10000
 
