@@ -43,11 +43,27 @@ def validate_image_quality(pil_image: Image.Image) -> tuple[bool, str]:
 
 
 # ==========================================
-# FIND PROJECT FILES
+# FIND PROJECT FILES & ROBUST PATH DISCOVERY
 # ==========================================
 
-BASE_DIR = Path(__file__).resolve().parents[1]
-sys.path.append(str(BASE_DIR / "src"))
+def find_base_dir() -> Path:
+    current = Path(__file__).resolve().parent
+    candidates = [
+        current.parent,
+        current,
+        Path.cwd(),
+        Path.cwd().parent
+    ]
+    for c in candidates:
+        if (c / "skin_disease_model.pth").exists() or (c / "src" / "models").exists():
+            return c
+    return current.parent
+
+BASE_DIR = find_base_dir()
+
+for p in [str(BASE_DIR), str(BASE_DIR / "src")]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 from models.skin_model import create_model
 from models.label_map import LABEL_MAP
@@ -61,7 +77,7 @@ from preprocessing.transforms import image_transforms
 app = FastAPI(
     title="Skin Disease AI",
     description="AI-based skin lesion classification prototype with realtime scanner and e-commerce care recommendations",
-    version="1.2.0"
+    version="1.2.1"
 )
 
 cors_origins_env = os.getenv("CORS_ORIGINS", "*")
@@ -80,33 +96,61 @@ app.add_middleware(
 
 
 # ==========================================
-# LOAD AI MODEL
+# LOAD AI MODEL (LAZY & STARTUP INITIALIZED)
 # ==========================================
 
 device = torch.device("cpu")
-
-model = create_model(
-    num_classes=len(LABEL_MAP),
-    pretrained=False
-)
-
-model_path = Path(__file__).resolve().parents[1] / "skin_disease_model.pth"
-
-model.load_state_dict(
-    torch.load(
-        model_path,
-        map_location=device
-    )
-)
-
-model.eval()
-
+model = None
 
 # Convert class numbers to disease names
 reverse_label_map = {
     value: key
     for key, value in LABEL_MAP.items()
 }
+
+def get_model():
+    """
+    Lazy singleton loader for PyTorch model.
+    Allows Uvicorn to bind port immediately without waiting for heavy weight loading,
+    preventing Render port timeout boot failures.
+    """
+    global model
+    if model is None:
+        m = create_model(num_classes=len(LABEL_MAP), pretrained=False)
+        candidate_paths = [
+            BASE_DIR / "skin_disease_model.pth",
+            Path.cwd() / "skin_disease_model.pth",
+            Path(__file__).resolve().parent / "skin_disease_model.pth",
+            Path(__file__).resolve().parents[1] / "skin_disease_model.pth"
+        ]
+        loaded = False
+        for p in candidate_paths:
+            if p.exists():
+                try:
+                    m.load_state_dict(torch.load(str(p), map_location=device))
+                    m.eval()
+                    model = m
+                    loaded = True
+                    print(f"Loaded skin disease model from: {p}")
+                    break
+                except Exception as err:
+                    print(f"Notice: Failed to load weights from {p}: {err}")
+        if not loaded:
+            print("Notice: skin_disease_model.pth not found in candidates, running fallback model.")
+            m.eval()
+            model = m
+    return model
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Binds port immediately, then preloads AI model in a background threadpool."""
+    print("FastAPI startup: binding port immediately...")
+    try:
+        await run_in_threadpool(get_model)
+        print("AI model preloaded successfully.")
+    except Exception as e:
+        print(f"Warning during AI model preload: {e}")
 
 
 # ==========================================
@@ -132,23 +176,120 @@ if mongo_uri:
 
 CUSTOM_DISEASES_FILE = BASE_DIR / "data" / "custom_diseases.json"
 
+SEEDED_CUSTOM_DISEASES = [
+    {
+        "name": "Eczema (Atopic Dermatitis)",
+        "category": "inflammatory",
+        "risk": "Low (Chronic / Inflammatory)",
+        "color": "#3b82f6",
+        "description": "Atopic dermatitis is a chronic inflammatory skin condition characterized by dry, itchy, and inflamed patches of skin.",
+        "causes": [
+            "Genetics and skin barrier dysfunction (filaggrin deficiency)",
+            "Environmental allergens and irritants (soaps, detergents, wool)",
+            "Stress and dry weather conditions"
+        ],
+        "general_care": [
+            "Apply thick ceramide moisturizers within 3 minutes after lukewarm bathing",
+            "Use fragrance-free, gentle hypoallergenic soap substitutes",
+            "Avoid scratching by keeping fingernails trimmed and using cool compresses"
+        ],
+        "medical_attention": "Seek medical attention if lesions become oozing, crusting with yellow pus (signs of secondary bacterial infection), or if severe flare-ups do not respond to OTC moisturizers.",
+        "is_custom": True,
+        "products": [
+            {
+                "name": "CeraVe Moisturizing Cream with Ceramides & Hyaluronic Acid",
+                "category": "Barrier Repair",
+                "reason": "Replenishes essential skin ceramides (1, 3, 6-II) to restore compromised moisture barriers.",
+                "badge": "National Eczema Assoc.",
+                "price_range": "$15 - $22",
+                "redirect_url": "https://www.amazon.com/s?k=cerave+moisturizing+cream+eczema"
+            },
+            {
+                "name": "Aveeno Colloidal Oatmeal Eczema Therapy Relief Balm",
+                "category": "Soothing Relief",
+                "reason": "Clinically proven colloidal oatmeal soothes severe itchiness and redness within minutes.",
+                "badge": "Anti-Itch",
+                "price_range": "$14 - $19",
+                "redirect_url": "https://www.amazon.com/s?k=colloidal+oatmeal+eczema+cream"
+            },
+            {
+                "name": "Hydrocortisone 1% Maximum Strength Anti-Itch Ointment",
+                "category": "OTC Treatment",
+                "reason": "Provides fast temporary relief from inflammatory itch flares during acute flare-ups.",
+                "badge": "Fast Relief",
+                "price_range": "$8 - $12",
+                "redirect_url": "https://www.amazon.com/s?k=hydrocortisone+1+percent+ointment"
+            }
+        ]
+    },
+    {
+        "name": "Acne Vulgaris",
+        "category": "inflammatory",
+        "risk": "Low (Manageable)",
+        "color": "#8b5cf6",
+        "description": "A very common skin condition that occurs when hair follicles become plugged with oil, dead skin cells, and Cutibacterium acnes bacteria.",
+        "causes": [
+            "Excess sebum (oil) production driven by androgens",
+            "Abnormal follicular keratinization plugging pores",
+            "Cutibacterium acnes bacterial proliferation and localized inflammation"
+        ],
+        "general_care": [
+            "Wash skin gently twice daily with a mild, non-comedogenic foaming cleanser",
+            "Avoid picking, squeezing, or popping pimples to prevent scarring and hyperpigmentation",
+            "Always use oil-free (non-comedogenic) moisturizers and broad-spectrum sunscreens"
+        ],
+        "medical_attention": "Consult a dermatologist if you experience deep, painful cystic or nodular acne, or if OTC treatments fail after 8-12 weeks.",
+        "is_custom": True,
+        "products": [
+            {
+                "name": "Paula's Choice 2% BHA Salicylic Acid Liquid Exfoliant",
+                "category": "Pore Exfoliant",
+                "reason": "Penetrates deep into lipid-rich pores to unclog trapped dead skin cells and sebum.",
+                "badge": "Best Seller",
+                "price_range": "$13 - $35",
+                "redirect_url": "https://www.amazon.com/s?k=paulas+choice+salicylic+acid"
+            },
+            {
+                "name": "PanOxyl 4% Benzoyl Peroxide Daily Antimicrobial Wash",
+                "category": "Antimicrobial Wash",
+                "reason": "Rapidly clears acne-causing bacteria and prevents new inflammatory papules.",
+                "badge": "Derm Recommended",
+                "price_range": "$10 - $15",
+                "redirect_url": "https://www.amazon.com/s?k=panoxyl+4+percent+wash"
+            },
+            {
+                "name": "Hero Cosmetics Mighty Patch Hydrocolloid Blemish Dots",
+                "category": "Targeted Care",
+                "reason": "Absorbs pus and protects active blemishes from picking and environmental dirt.",
+                "badge": "Pimple Patch",
+                "price_range": "$12 - $18",
+                "redirect_url": "https://www.amazon.com/s?k=mighty+patch+original"
+            }
+        ]
+    }
+]
+
 def load_custom_diseases() -> list[dict]:
-    """Loads user-added disease categories from disk."""
+    """Loads user-added disease categories from disk, with fallback seed."""
     if not CUSTOM_DISEASES_FILE.exists():
-        return []
+        return SEEDED_CUSTOM_DISEASES
     try:
         with open(CUSTOM_DISEASES_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
-            return data.get("diseases", [])
+            res = data.get("diseases", [])
+            return res if res else SEEDED_CUSTOM_DISEASES
     except Exception as e:
         print(f"Warning: Failed to read custom diseases file: {e}")
-        return []
+        return SEEDED_CUSTOM_DISEASES
 
 def save_custom_diseases(diseases_list: list[dict]):
     """Persists user-added disease categories to disk."""
-    CUSTOM_DISEASES_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(CUSTOM_DISEASES_FILE, "w", encoding="utf-8") as f:
-        json.dump({"diseases": diseases_list}, f, indent=2)
+    try:
+        CUSTOM_DISEASES_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(CUSTOM_DISEASES_FILE, "w", encoding="utf-8") as f:
+            json.dump({"diseases": diseases_list}, f, indent=2)
+    except Exception as e:
+        print(f"Warning: Failed to write custom diseases file: {e}")
 
 
 # ==========================================
@@ -456,6 +597,8 @@ def run_model_inference(pil_image: Image.Image):
     to eliminate camera angle/rotational sensitivity and significantly boost real-world accuracy.
     Executed in a background threadpool to prevent blocking FastAPI's async event loop.
     """
+    ai_model = get_model()
+
     # Create 4 multi-view augmented representations
     views = [
         pil_image,
@@ -467,7 +610,7 @@ def run_model_inference(pil_image: Image.Image):
     batch_tensor = torch.stack(tensors).to(device)
 
     with torch.no_grad():
-        outputs = model(batch_tensor)
+        outputs = ai_model(batch_tensor)
         probabilities_batch = torch.softmax(outputs, dim=1)
         # Average probabilities across the 4 augmented views for smooth, stable predictions
         probabilities = probabilities_batch.mean(dim=0, keepdim=True)
@@ -782,7 +925,19 @@ async def delete_disease_category(disease_name: str):
 # PAGE ROUTES & STATIC SERVING
 # ==========================================
 
-frontend_dir = BASE_DIR / "frontend"
+def find_frontend_dir() -> Path:
+    candidates = [
+        BASE_DIR / "frontend",
+        Path.cwd() / "frontend",
+        Path(__file__).resolve().parent / "frontend",
+        Path(__file__).resolve().parents[1] / "frontend"
+    ]
+    for c in candidates:
+        if c.exists() and (c / "scan.html").exists():
+            return c
+    return BASE_DIR / "frontend"
+
+frontend_dir = find_frontend_dir()
 
 @app.api_route("/scan", methods=["GET", "HEAD"])
 async def get_scan_page():
